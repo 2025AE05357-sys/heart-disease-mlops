@@ -16,6 +16,8 @@ plan (D0–D15); each one is added at the stage that needs it.
 | D6 | 2/6 | Decision threshold and risk bands | Class threshold 0.5; risk bands low < 0.3 ≤ moderate < 0.6 ≤ high; recall-0.90 threshold reported only | 30 Sep 2026 (provisional) |
 | D7 | 4 | Model serialisation | MLflow sklearn flavour stored with skops, loaded with a trust list pinned in code | 30 Sep 2026 (provisional) |
 | D8 | 4 | Commit `models/champion/`? | Yes: the exact registered artifact plus `lineage.json` | 30 Sep 2026 (provisional) |
+| D9 | 5 | CI quality gate | Fail the train job if the champion's hold-out ROC-AUC is below 0.80 | 30 Sep 2026 (provisional) |
+| D10 | 5/6 | Push the image to GHCR from CI? | Not yet: CI builds and smoke-tests the image; the cluster uses the locally built image | 30 Sep 2026 (provisional) |
 
 "Provisional" marks a decision taken with the plan's recommendation while I was away, to be
 confirmed or changed. Each lives in `configs/train.yaml`, so changing one is a config edit and a
@@ -222,3 +224,36 @@ nothing. `tests/test_model_io.py` shows a file carrying an extra type being refu
 access to a registry, and git history shows every model change as a reviewable diff of
 `lineage.json`. `make package` copies the registered artifact byte for byte and checks that it
 reproduces the hold-out ROC-AUC logged at training time before writing anything.
+
+---
+
+## D9: CI quality gate (provisional)
+
+| Option | What it means |
+|---|---|
+| **Hold-out ROC-AUC ≥ 0.80** | Fails the pipeline on a clearly broken model, with room for normal variation |
+| Match the current score (≥ 0.95) | Any retraining noise on 61 hold-out patients would fail CI |
+| No gate | A broken model could be packaged silently |
+
+**Choice:** `python -m heartrisk.gate --min-roc-auc 0.80` after `make package`; it also writes the
+metrics table into the GitHub job summary.
+
+**Reason:** the gate exists to catch a broken pipeline (wrong labels, a leak removed, a column
+shifted), not to police small fluctuations. The current champion scores 0.950, so 0.80 is a safety
+net, not a target. External sites are reported but not gated: their shift is a known property of
+the data (D1), not a regression.
+
+---
+
+## D10: Push the image to GHCR from CI? (provisional)
+
+| Option | What it means |
+|---|---|
+| **Not yet** | CI builds and smoke-tests the image on every push; the local cluster runs the image built locally |
+| Push on `main` to a private GHCR package | A registry copy of every main-branch image; the cluster would need an image-pull secret |
+
+**Choice:** not yet.
+
+**Reason:** the deployment target is the local Docker Desktop cluster, which uses the local image
+store, so a registry adds a secret to manage without changing what is deployed. It is a small,
+self-contained addition (`packages: write`, login, push) if a remote cluster is ever used.

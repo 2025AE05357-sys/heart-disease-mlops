@@ -20,7 +20,7 @@ the way that GxP-regulated clinical systems demand an audit trail.
 | 2 | Feature engineering + model development | 8 | ✅ |
 | 3 | Experiment tracking (MLflow) | 5 | ✅ |
 | 4 | Model packaging + reproducibility | 7 | ✅ |
-| 5 | CI/CD pipeline + automated tests | 8 | ⏳ |
+| 5 | CI/CD pipeline + automated tests | 8 | 🟡 workflow written and validated (actionlint); first run on first push |
 | 6 | Containerised serving API | 5 | ✅ |
 | 7 | Kubernetes deployment | 7 | ⏳ |
 | 8 | Monitoring + logging | 3 | ⏳ |
@@ -37,6 +37,7 @@ heart-disease-mlops/
 ├── pyproject.toml           package metadata + ruff/pytest config
 ├── configs/data.yaml        data sources, plausibility ranges, validation-gate threshold
 ├── configs/train.yaml       seed, CV, model grids, selection rule, threshold (decisions D3-D6)
+├── .github/workflows/ci.yml lint -> test -> train (quality gate) + docker build and smoke test
 ├── Dockerfile               multi-stage, non-root API image with the champion baked in
 ├── samples/                 example /predict and /predict/batch payloads (real UCI rows)
 ├── scripts/vm_bootstrap.sh  sets up WSL Ubuntu or the BITS lab VM

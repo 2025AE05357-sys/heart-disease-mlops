@@ -1,0 +1,148 @@
+# CI: lint -> test -> (train, docker). Any failure stops the pipeline with the failing step's log.
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.12"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install ruff at the version pinned in requirements.txt
+        run: pip install "$(grep -E '^ruff==' requirements.txt | cut -d' ' -f1)"
+      - name: ruff check
+        run: ruff check --output-format=github src tests
+      - name: ruff format --check
+        run: ruff format --check src tests
+
+  test:
+    name: Unit tests
+    needs: lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install pinned requirements
+        run: pip install -r requirements.txt
+      - name: pytest with coverage
+        run: >-
+          python -m pytest
+          --junitxml=reports/junit.xml
+          --cov=heartrisk --cov-report=term-missing --cov-report=xml:reports/coverage.xml
+      - name: Coverage table in the job summary
+        if: always()
+        run: python -m coverage report --format=markdown >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: |
+            reports/junit.xml
+            reports/coverage.xml
+          if-no-files-found: warn
+
+  train:
+    name: Data, training, packaging, quality gate
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      MLFLOW_TRACKING_URI: sqlite:///${{ github.workspace }}/mlruns/mlflow.db
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install pinned requirements
+        run: pip install -r requirements.txt
+      - name: Verify committed raw data against MANIFEST.json
+        run: make verify-data
+      - name: Validation gate and cleaning
+        run: make prepare
+      - name: Cleaning is reproducible (output must equal the committed files byte for byte)
+        run: git diff --exit-code -- data/processed
+      - name: Train, evaluate, log to MLflow, register
+        run: make train
+      - name: Package the champion (lineage + model card)
+        run: make package
+      - name: Quality gate D9 (hold-out ROC-AUC >= 0.80) and metrics summary
+        run: python -m heartrisk.gate --min-roc-auc 0.80 --summary "$GITHUB_STEP_SUMMARY"
+      - name: Upstream UCI files still match the pinned checksums (non-blocking)
+        continue-on-error: true
+        run: |
+          mkdir -p "$RUNNER_TEMP/raw-check"
+          cp data/raw/MANIFEST.json "$RUNNER_TEMP/raw-check/"
+          python -m heartrisk.data.download --raw-dir "$RUNNER_TEMP/raw-check"
+      - name: Upload training evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: training-${{ github.sha }}
+          path: |
+            reports/
+            models/champion/
+            docs/MODEL_CARD.md
+            mlruns/
+          if-no-files-found: warn
+
+  docker:
+    name: Container build and smoke test
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+        with:
+          driver: docker
+      - name: Build the image (tag = commit)
+        run: make docker-build IMAGE_TAG="${GITHUB_SHA::7}"
+      - name: Start the container
+        run: docker run -d --name heartrisk-api -p 8000:8000 "heartrisk-api:${GITHUB_SHA::7}"
+      - name: Smoke test (health, predictions, 422 on invalid input, lineage, metrics)
+        run: bash scripts/smoke.sh http://localhost:8000
+      - name: Image size in the job summary
+        run: docker image ls "heartrisk-api:${GITHUB_SHA::7}" --format 'Image size ({{.Tag}}) {{.Size}}' >> "$GITHUB_STEP_SUMMARY"
+      - name: Container logs
+        if: always()
+        run: docker logs heartrisk-api > container.log 2>&1 || true; cat container.log
+      - name: Upload container logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: container-log
+          path: container.log
+          if-no-files-found: warn
