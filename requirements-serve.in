@@ -1,0 +1,17 @@
+# Serving image dependencies only (Stage 6 API). Edit this file, then run `make lock`.
+# Compiled with requirements.txt as a constraint, so every library the model touches
+# (scikit-learn, pandas, numpy, scipy, skops) is the exact version it was trained with.
+
+# Model loading and inference
+scikit-learn
+pandas
+numpy
+scipy
+skops
+pyyaml
+
+# API
+fastapi
+uvicorn[standard]
+pydantic
+prometheus-client

@@ -13,7 +13,7 @@ export MLFLOW_TRACKING_URI
 
 .DEFAULT_GOAL := help
 .PHONY: help bootstrap check install lock lint format test data verify-data prepare eda \
-        train mlflow-ui experiments-report
+        train mlflow-ui experiments-report package all
 
 help: ## List targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -27,9 +27,11 @@ check: ## Print tool versions, cluster status and connectivity
 install: ## Install pinned requirements into the current Python (CI, Docker, any venv)
 	$(PYTHON) -m pip install -r requirements.txt
 
-lock: ## Re-resolve requirements.in -> requirements.txt (Python 3.12, Linux x86_64)
+lock: ## Re-resolve both locks: requirements.txt, then requirements-serve.txt constrained by it
 	$(PYTHON) -m pip install -q uv
 	$(PYTHON) -m uv pip compile requirements.in -o requirements.txt \
+	  --python-version 3.12 --python-platform x86_64-unknown-linux-gnu --annotation-style line
+	$(PYTHON) -m uv pip compile requirements-serve.in -o requirements-serve.txt -c requirements.txt \
 	  --python-version 3.12 --python-platform x86_64-unknown-linux-gnu --annotation-style line
 
 lint: ## Static checks (fails the pipeline on any finding)
@@ -69,3 +71,9 @@ mlflow-ui: ## MLflow UI on http://localhost:5000 (Ctrl+C to stop)
 
 experiments-report: ## Family runs from MLflow -> reports/experiments.csv
 	$(PYTHON) -m heartrisk.tracking --report reports/experiments.csv
+
+# ---- Stage 4: packaging + reproducibility --------------------------------------------------
+package: ## Export the registered champion -> models/champion/ + lineage.json + docs/MODEL_CARD.md
+	$(PYTHON) -m heartrisk.package
+
+all: verify-data prepare train package ## Full pipeline from committed raw data to a packaged model

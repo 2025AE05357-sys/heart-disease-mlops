@@ -1,0 +1,132 @@
+{
+  "model": {
+    "name": "heart-disease-classifier",
+    "version": 5,
+    "alias": "champion",
+    "family": "logistic_regression",
+    "selection_reason": "mean CV ROC-AUC 0.909 ties with random_forest 0.904 (within 0.01 of the best, 0.909), so recall decides: highest mean CV recall (0.819)",
+    "registered_at_utc": "2026-09-30T10:13:40Z",
+    "run_id": "4360f32280214178bc8258515ad18188",
+    "parent_run_id": "fc4c4bcf083e46f98cb2f8e8420423a7",
+    "file": "model.skops",
+    "file_sha256": "b1052bc4e4eafafa0d7b9ea8c7a609afe5af2509381dd0ee2c8a133ca8a79549"
+  },
+  "code": {
+    "git_sha": "dcaed7b756e62c6959240ceeb215339f26b01d16",
+    "git_dirty": "true"
+  },
+  "data": {
+    "clean_file": "data/processed/heart_clean.csv",
+    "clean_file_sha256": "0d99bda801da97beb85350ea30c11d8db70b06c359b1e3417e188c2a24951b3d",
+    "raw_manifest_sha256": "c0a7801c5f241a07fbff2d81b21834196a47e6e2588c7d9255d451cc41909dc4",
+    "train_sites": [
+      "cleveland"
+    ],
+    "rows": {
+      "train": 242,
+      "holdout": 61,
+      "external": {
+        "hungary": 294,
+        "switzerland": 123,
+        "va": 200
+      }
+    }
+  },
+  "libraries": {
+    "python": "3.12.3",
+    "scikit-learn": "1.9.1",
+    "pandas": "3.0.6",
+    "mlflow": "3.16.1",
+    "skops": "0.16.0"
+  },
+  "decision": {
+    "threshold": 0.5,
+    "risk_bands": {
+      "low": 0.3,
+      "high": 0.6
+    }
+  },
+  "metrics": {
+    "cv": {
+      "cv_roc_auc_mean": 0.908664,
+      "cv_roc_auc_std": 0.010665,
+      "cv_accuracy_mean": 0.834524,
+      "cv_accuracy_std": 0.037584,
+      "cv_precision_mean": 0.833333,
+      "cv_precision_std": 0.092521,
+      "cv_recall_mean": 0.818972,
+      "cv_recall_std": 0.05124,
+      "cv_f1_mean": 0.821168,
+      "cv_f1_std": 0.032377
+    },
+    "holdout": {
+      "n": 61,
+      "prevalence": 0.459016,
+      "roc_auc": 0.950216,
+      "accuracy": 0.852459,
+      "precision": 0.806452,
+      "recall": 0.892857,
+      "specificity": 0.818182,
+      "f1": 0.847458
+    },
+    "holdout_by_sex": {
+      "female": {
+        "n": 20,
+        "prevalence": 0.35,
+        "roc_auc": 1.0,
+        "accuracy": 0.95,
+        "precision": 1.0,
+        "recall": 0.857143,
+        "specificity": 1.0,
+        "f1": 0.923077
+      },
+      "male": {
+        "n": 41,
+        "prevalence": 0.512195,
+        "roc_auc": 0.928571,
+        "accuracy": 0.804878,
+        "precision": 0.76,
+        "recall": 0.904762,
+        "specificity": 0.7,
+        "f1": 0.826087
+      }
+    },
+    "external": {
+      "hungary": {
+        "n": 294,
+        "prevalence": 0.360544,
+        "roc_auc": 0.894821,
+        "accuracy": 0.829932,
+        "precision": 0.868421,
+        "recall": 0.622642,
+        "specificity": 0.946809,
+        "f1": 0.725275
+      },
+      "switzerland": {
+        "n": 123,
+        "prevalence": 0.934959,
+        "roc_auc": 0.741304,
+        "accuracy": 0.650407,
+        "precision": 0.973684,
+        "recall": 0.643478,
+        "specificity": 0.75,
+        "f1": 0.774869
+      },
+      "va": {
+        "n": 200,
+        "prevalence": 0.745,
+        "roc_auc": 0.697592,
+        "accuracy": 0.56,
+        "precision": 0.876543,
+        "recall": 0.47651,
+        "specificity": 0.803922,
+        "f1": 0.617391
+      }
+    }
+  },
+  "reproducibility_check": {
+    "holdout_roc_auc_logged_at_training": 0.95021645,
+    "holdout_roc_auc_from_exported_file": 0.95021645,
+    "identical": true
+  }
+}

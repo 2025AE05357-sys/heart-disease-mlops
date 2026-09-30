@@ -6,8 +6,9 @@ numpy
 pandas
 pandera
 
-# Modelling
+# Modelling (skops: safe model serialisation, decision D7)
 scikit-learn
+skops
 
 # Experiment tracking, model registry, packaging
 mlflow

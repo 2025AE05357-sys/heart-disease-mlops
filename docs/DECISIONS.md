@@ -14,6 +14,8 @@ plan (D0–D15); each one is added at the stage that needs it.
 | D4 | 2 | Model families | Logistic regression, random forest, histogram gradient boosting | 30 Sep 2026 (provisional) |
 | D5 | 2 | Champion selection rule | Best mean CV ROC-AUC; within 0.01, higher mean CV recall; then the simpler model | 30 Sep 2026 (provisional) |
 | D6 | 2/6 | Decision threshold and risk bands | Class threshold 0.5; risk bands low < 0.3 ≤ moderate < 0.6 ≤ high; recall-0.90 threshold reported only | 30 Sep 2026 (provisional) |
+| D7 | 4 | Model serialisation | MLflow sklearn flavour stored with skops, loaded with a trust list pinned in code | 30 Sep 2026 (provisional) |
+| D8 | 4 | Commit `models/champion/`? | Yes: the exact registered artifact plus `lineage.json` | 30 Sep 2026 (provisional) |
 
 "Provisional" marks a decision taken with the plan's recommendation while I was away, to be
 confirmed or changed. Each lives in `configs/train.yaml`, so changing one is a config edit and a
@@ -186,3 +188,37 @@ recall (0.819 vs 0.774) and became champion; random forest is the registered cha
 **Reason:** a threshold tuned on 61 hold-out patients would overfit them, and the external sites
 show that calibration does not transfer across hospitals anyway. On the hold-out set the 0.5
 threshold already gives recall 0.89; reaching 0.90 needs 0.48, a negligible change.
+
+---
+
+## D7: Model serialisation (provisional)
+
+| Option | What it means |
+|---|---|
+| **skops, via MLflow's sklearn flavour** | A declarative format: loading reconstructs only types on an explicit trust list |
+| pickle / cloudpickle (MLflow's older default) | Loading a pickle can execute arbitrary code embedded in the file |
+| ONNX | Portable, but needs a converter for the custom feature step and a second runtime |
+
+**Choice:** skops. The five non-default types a heart-risk pipeline contains are pinned in
+`heartrisk.model_io.SKOPS_TRUSTED_TYPES`; the loader refuses any other type, and refuses a model
+folder whose own declared trust list goes beyond the pinned one.
+
+**Reason:** a model file is an input the API trusts at start-up; with pickle, whoever can replace
+the file can run code in the container. MLflow 3.16 supports skops natively, so the choice costs
+nothing. `tests/test_model_io.py` shows a file carrying an extra type being refused.
+
+---
+
+## D8: Commit `models/champion/` (provisional)
+
+| Option | What it means |
+|---|---|
+| **Commit it** | The exact registered artifact (283 KB) with `lineage.json` lives in git |
+| Download from the MLflow registry at build time | The build depends on a registry the CI runner cannot reach |
+
+**Choice:** commit it.
+
+**Reason:** the Docker build and CI then work from a clean clone without retraining or network
+access to a registry, and git history shows every model change as a reviewable diff of
+`lineage.json`. `make package` copies the registered artifact byte for byte and checks that it
+reproduces the hold-out ROC-AUC logged at training time before writing anything.

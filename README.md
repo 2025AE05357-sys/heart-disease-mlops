@@ -19,7 +19,7 @@ the way that GxP-regulated clinical systems demand an audit trail.
 | 1 | Data acquisition, cleaning, EDA | 5 | ✅ |
 | 2 | Feature engineering + model development | 8 | ✅ |
 | 3 | Experiment tracking (MLflow) | 5 | ✅ |
-| 4 | Model packaging + reproducibility | 7 | ⏳ |
+| 4 | Model packaging + reproducibility | 7 | ✅ |
 | 5 | CI/CD pipeline + automated tests | 8 | ⏳ |
 | 6 | Containerised serving API | 5 | ⏳ |
 | 7 | Kubernetes deployment | 7 | ⏳ |
@@ -33,6 +33,7 @@ heart-disease-mlops/
 ├── Makefile                 one target per pipeline stage (`make help`)
 ├── requirements.in          direct dependencies (human-edited)
 ├── requirements.txt         fully pinned lock for Python 3.12 (`make lock`)
+├── requirements-serve.*     API-only lock, constrained to the training versions
 ├── pyproject.toml           package metadata + ruff/pytest config
 ├── configs/data.yaml        data sources, plausibility ranges, validation-gate threshold
 ├── configs/train.yaml       seed, CV, model grids, selection rule, threshold (decisions D3-D6)
@@ -44,7 +45,9 @@ heart-disease-mlops/
 ├── data/raw/                UCI source files + MANIFEST.json (SHA-256 per file)
 ├── data/processed/          heart_clean.csv, rejected.csv, validation report, data card
 ├── reports/                 EDA + model figures, model comparison, external validation, metrics JSON
+├── models/champion/         exported champion (MLflow format, skops) + lineage.json
 ├── docs/DECISIONS.md        design decisions: options, choice, reason
+├── docs/MODEL_CARD.md       generated model card: use, data, performance, limitations
 └── docs/screenshots/        evidence for the report
 ```
 

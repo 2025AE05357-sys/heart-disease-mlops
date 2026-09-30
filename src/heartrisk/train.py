@@ -41,6 +41,7 @@ from heartrisk.data.clean import load_clean
 from heartrisk.data.download import sha256_bytes
 from heartrisk.data.schema import SITE_LABELS
 from heartrisk.features import build_pipeline, feature_frame
+from heartrisk.model_io import SKOPS_TRUSTED_TYPES
 
 log = logging.getLogger(__name__)
 
@@ -55,15 +56,6 @@ SCORERS = {
 }
 SCORING = list(SCORERS)
 HOLDOUT_METRICS = ["roc_auc", "accuracy", "precision", "recall", "specificity", "f1"]
-# Types skops must be told to trust when loading the saved pipeline (checked with
-# skops.io.get_untrusted_types); anything else in a model file is refused.
-SKOPS_TRUSTED_TYPES = [
-    "heartrisk.features.HeartRateReserve",
-    "numpy.dtype",
-    "sklearn.compose._column_transformer.make_column_selector",
-    "sklearn.ensemble._hist_gradient_boosting.predictor.TreePredictor",
-    "sklearn.tree._tree.Tree",
-]
 
 
 def load_train_config(path: str | Path) -> dict[str, Any]:
@@ -276,6 +268,24 @@ def _register(fit: dict, name: str, alias: str, tags: dict[str, str]) -> str:
     return version
 
 
+def split_development(df: pd.DataFrame, config: dict[str, Any]) -> tuple:
+    """(X_train, X_test, y_train, y_test, external): the one split every stage must share.
+
+    Training sites (D1) are split into a stratified, seeded train/hold-out pair; every other
+    site is returned untouched as external validation data. Packaging calls this again to
+    recompute hold-out metrics, so it must never change between training and packaging.
+    """
+    train_sites = config["data"]["train_sites"]
+    development = df[df["site"].isin(train_sites)]
+    external = df[~df["site"].isin(train_sites)]
+    X = feature_frame(development)
+    y = development["target"].astype(int).to_numpy()
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=config["data"]["test_size"], stratify=y, random_state=config["seed"]
+    )
+    return X_train, X_test, y_train, y_test, external
+
+
 def run(config: dict[str, Any], tracking_uri: str | None = None, register: bool = True) -> dict:
     """Train, evaluate, select and log; writes reports and returns a summary dict."""
     seed = config["seed"]
@@ -283,12 +293,7 @@ def run(config: dict[str, Any], tracking_uri: str | None = None, register: bool 
     df = load_clean(clean_path)
     train_sites = config["data"]["train_sites"]
     development = df[df["site"].isin(train_sites)]
-    external = df[~df["site"].isin(train_sites)]
-    X = feature_frame(development)
-    y = development["target"].astype(int).to_numpy()
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=config["data"]["test_size"], stratify=y, random_state=seed
-    )
+    X_train, X_test, y_train, y_test, external = split_development(df, config)
     cv = StratifiedKFold(n_splits=config["cv"]["folds"], shuffle=True, random_state=seed)
     reports = Path(config["outputs"]["reports_dir"])
     figures, metrics_dir = reports / "figures", reports / "metrics"

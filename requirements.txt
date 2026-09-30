@@ -143,7 +143,7 @@ scipy==1.18.1             # via mlflow, scikit-learn, skops
 seaborn==0.13.2           # via -r requirements.in
 send2trash==2.1.0         # via jupyter-server
 six==1.17.0               # via python-dateutil, rfc3339-validator
-skops==0.16.0             # via mlflow
+skops==0.16.0             # via mlflow, -r requirements.in
 smmap==5.0.3              # via gitdb
 soupsieve==2.10           # via beautifulsoup4
 sqlalchemy==2.1.1         # via alembic, mlflow

@@ -21,6 +21,7 @@ from sklearn.metrics import (
 
 from heartrisk import viz
 from heartrisk.data.schema import CODE_LABELS, DESCRIPTIONS
+from heartrisk.model_io import risk_band as risk_band  # re-export: one definition, API included
 
 FAMILY_LABELS = {
     "logistic_regression": "Logistic regression",
@@ -85,13 +86,6 @@ def threshold_table(y_true: np.ndarray, proba: np.ndarray, thresholds) -> pd.Dat
 
 
 _THRESHOLD_COLUMNS = ["precision", "recall", "specificity", "f1", "accuracy"]
-
-
-def risk_band(probability: float, low: float, high: float) -> str:
-    """'low' below `low`, 'high' at or above `high`, otherwise 'moderate' (decision D6)."""
-    if probability < low:
-        return "low"
-    return "high" if probability >= high else "moderate"
 
 
 # ---- figures -------------------------------------------------------------------------------

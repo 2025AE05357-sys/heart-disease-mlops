@@ -10,10 +10,9 @@ from pathlib import Path
 
 import mlflow
 import pandas as pd
-import pytest
 from mlflow import MlflowClient
 
-from heartrisk import train
+from heartrisk import tracking, train
 
 REPO = Path(__file__).resolve().parents[1]
 FIXTURES = REPO / "tests" / "fixtures"
@@ -70,31 +69,6 @@ def test_tie_on_auc_and_recall_goes_to_the_simpler_model():
     assert "simpl" in reason
 
 
-@pytest.fixture(scope="module")
-def fast_config(tmp_path_factory):
-    tmp_path = tmp_path_factory.mktemp("train")
-    config = train.load_train_config(REPO / "configs" / "train.yaml")
-    config["n_jobs"] = 1  # process start-up costs more than it saves on 2-candidate grids
-    config["data"]["clean_file"] = str(FIXTURES / "heart_sample.csv")
-    config["data"]["manifest"] = str(tmp_path / "no-manifest.json")
-    config["cv"]["folds"] = 3
-    config["outputs"]["reports_dir"] = str(tmp_path / "reports")
-    config["models"] = {
-        "logistic_regression": {"grid": {"model__C": [1.0]}},
-        "random_forest": {"grid": {"model__n_estimators": [25], "model__max_depth": [3]}},
-        "hist_gradient_boosting": {"grid": {"model__max_leaf_nodes": [7]}},
-    }
-    config["features"]["hr_reserve"] = [False, True]  # 2 candidates per family
-    return config
-
-
-@pytest.fixture(scope="module")
-def trained(fast_config, tmp_path_factory):
-    uri = f"sqlite:///{tmp_path_factory.mktemp('mlflow') / 'mlflow.db'}"
-    result = train.run(fast_config, tracking_uri=uri)
-    return result, fast_config, uri
-
-
 def test_run_writes_comparison_champion_and_external_validation(trained):
     result, config, _ = trained
     reports = Path(config["outputs"]["reports_dir"])
@@ -147,3 +121,14 @@ def test_retraining_with_the_same_seed_reproduces_the_results(trained, fast_conf
 
     assert first["champion"] == second["champion"]
     pd.testing.assert_frame_equal(first["comparison"], second["comparison"])
+
+
+def test_experiments_report_has_one_row_per_family_run(trained, tmp_path):
+    _, config, uri = trained
+    tracking.configure(uri)
+
+    table = tracking.experiments_report(config["tracking"]["experiment"], tmp_path / "exp.csv")
+
+    assert (tmp_path / "exp.csv").exists()
+    assert sorted(table["family"]) == sorted(config["models"])
+    assert set(table["champion"]) == {"true", "false"}
