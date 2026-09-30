@@ -1,0 +1,28 @@
+# Direct dependencies. Edit this file, then run `make lock` to regenerate
+# the fully pinned requirements.txt (target: Python 3.12, Linux x86_64).
+
+# Data handling + validation gate
+numpy
+pandas
+pandera
+
+# Modelling
+scikit-learn
+
+# Experiment tracking, model registry, packaging
+mlflow
+
+# EDA and plots
+matplotlib
+seaborn
+jupyterlab
+nbconvert
+ipykernel
+
+# Config
+pyyaml
+
+# Quality gates
+pytest
+pytest-cov
+ruff

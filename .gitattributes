@@ -1,0 +1,9 @@
+# Scripts run on the Linux lab VM: force LF even when committed from Windows.
+* text=auto eol=lf
+*.sh text eol=lf
+*.png binary
+*.jpg binary
+*.gif binary
+*.pdf binary
+*.docx binary
+*.mp4 binary
