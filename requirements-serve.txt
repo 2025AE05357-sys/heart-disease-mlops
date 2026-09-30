@@ -7,7 +7,7 @@ click==8.5.0              # via uvicorn, -c requirements.txt
 cloudpickle==3.1.2        # via joblib, -c requirements.txt
 fastapi==0.142.1          # via -c requirements.txt, -r requirements-serve.in
 h11==0.16.0               # via uvicorn, -c requirements.txt
-httptools==0.8.0          # via uvicorn
+httptools==0.8.0          # via uvicorn, -c requirements.txt
 idna==3.20                # via anyio, -c requirements.txt
 joblib==1.6.0             # via scikit-learn, -c requirements.txt
 narwhals==2.26.0          # via scikit-learn, -c requirements.txt
@@ -31,7 +31,7 @@ threadpoolctl==3.7.0      # via scikit-learn, -c requirements.txt
 typing-extensions==4.16.0  # via anyio, fastapi, opentelemetry-api, pydantic, pydantic-core, starlette, typing-inspection, -c requirements.txt
 typing-inspection==0.4.4  # via fastapi, pydantic, -c requirements.txt
 uvicorn==0.54.0           # via -c requirements.txt, -r requirements-serve.in
-uvloop==0.22.1            # via uvicorn
-watchfiles==1.3.0         # via uvicorn
+uvloop==0.22.1            # via uvicorn, -c requirements.txt
+watchfiles==1.3.0         # via uvicorn, -c requirements.txt
 wcwidth==0.9.1            # via prettytable, -c requirements.txt
-websockets==17.1          # via uvicorn
+websockets==17.1          # via uvicorn, -c requirements.txt

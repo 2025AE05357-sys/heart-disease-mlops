@@ -24,9 +24,9 @@ import mlflow
 from mlflow import MlflowClient
 
 from heartrisk import evaluate, model_io, tracking
+from heartrisk.columns import SITE_LABELS
 from heartrisk.data.clean import load_clean
 from heartrisk.data.download import sha256_bytes
-from heartrisk.data.schema import SITE_LABELS
 from heartrisk.features import feature_frame
 from heartrisk.train import load_train_config, split_development
 

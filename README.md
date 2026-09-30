@@ -21,7 +21,7 @@ the way that GxP-regulated clinical systems demand an audit trail.
 | 3 | Experiment tracking (MLflow) | 5 | ✅ |
 | 4 | Model packaging + reproducibility | 7 | ✅ |
 | 5 | CI/CD pipeline + automated tests | 8 | ⏳ |
-| 6 | Containerised serving API | 5 | ⏳ |
+| 6 | Containerised serving API | 5 | ✅ |
 | 7 | Kubernetes deployment | 7 | ⏳ |
 | 8 | Monitoring + logging | 3 | ⏳ |
 | 9 | Report, screenshots, video | 2 | ⏳ |
@@ -37,8 +37,11 @@ heart-disease-mlops/
 ├── pyproject.toml           package metadata + ruff/pytest config
 ├── configs/data.yaml        data sources, plausibility ranges, validation-gate threshold
 ├── configs/train.yaml       seed, CV, model grids, selection rule, threshold (decisions D3-D6)
+├── Dockerfile               multi-stage, non-root API image with the champion baked in
+├── samples/                 example /predict and /predict/batch payloads (real UCI rows)
 ├── scripts/vm_bootstrap.sh  sets up WSL Ubuntu or the BITS lab VM
-├── src/heartrisk/           data/ (download, schema, clean), features, train, evaluate, tracking, viz
+├── scripts/smoke.sh         end-to-end smoke test of a running API
+├── src/heartrisk/           data/, features, train, evaluate, tracking, package, api/ (FastAPI)
 ├── tests/                   pytest suite
 ├── notebooks/01_eda.ipynb   EDA notebook (executed by `make eda`)
 ├── data/README.md           provenance, licence, cleaning rules

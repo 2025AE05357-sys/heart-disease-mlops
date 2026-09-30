@@ -1,0 +1,79 @@
+{
+  "patients": [
+    {
+      "age": 67,
+      "sex": 1,
+      "cp": 4,
+      "trestbps": 120,
+      "chol": 229,
+      "fbs": 0,
+      "restecg": 2,
+      "thalach": 129,
+      "exang": 1,
+      "oldpeak": 2.6,
+      "slope": 2,
+      "ca": 2,
+      "thal": 7
+    },
+    {
+      "age": 41,
+      "sex": 0,
+      "cp": 2,
+      "trestbps": 130,
+      "chol": 204,
+      "fbs": 0,
+      "restecg": 2,
+      "thalach": 172,
+      "exang": 0,
+      "oldpeak": 1.4,
+      "slope": 1,
+      "ca": 0,
+      "thal": 3
+    },
+    {
+      "age": 34,
+      "sex": 0,
+      "cp": 2,
+      "trestbps": 130,
+      "chol": 161,
+      "fbs": 0,
+      "restecg": 0,
+      "thalach": 190,
+      "exang": 0,
+      "oldpeak": 0.0,
+      "slope": null,
+      "ca": null,
+      "thal": null
+    },
+    {
+      "age": 60,
+      "sex": 1,
+      "cp": 4,
+      "trestbps": 152,
+      "chol": null,
+      "fbs": 0,
+      "restecg": 1,
+      "thalach": 118,
+      "exang": 1,
+      "oldpeak": 0.0,
+      "slope": null,
+      "ca": null,
+      "thal": 7
+    },
+    {
+      "age": 34,
+      "sex": 1,
+      "cp": 4,
+      "trestbps": 115,
+      "chol": null,
+      "fbs": null,
+      "restecg": null,
+      "thalach": 154,
+      "exang": 0,
+      "oldpeak": 0.2,
+      "slope": 1,
+      "ca": null,
+      "thal": null
+    }
+  ]
+}

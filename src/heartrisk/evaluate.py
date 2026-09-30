@@ -20,7 +20,7 @@ from sklearn.metrics import (
 )
 
 from heartrisk import viz
-from heartrisk.data.schema import CODE_LABELS, DESCRIPTIONS
+from heartrisk.columns import CODE_LABELS, DESCRIPTIONS
 from heartrisk.model_io import risk_band as risk_band  # re-export: one definition, API included
 
 FAMILY_LABELS = {

@@ -28,6 +28,8 @@ filterwarnings = [
     "ignore:The ``noload`` loader strategy is deprecated:DeprecationWarning",
     "ignore:Any type hint is inferred as AnyType:UserWarning",
     "ignore::pandas.errors.Pandas4Warning:mlflow",
+    # FastAPI's TestClient still wraps httpx; the notice comes from Starlette itself
+    "ignore:Using `httpx` with `starlette.testclient` is deprecated",
 ]
 
 [tool.coverage.report]

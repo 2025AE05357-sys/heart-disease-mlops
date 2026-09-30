@@ -20,6 +20,12 @@ jupyterlab
 nbconvert
 ipykernel
 
+# Serving API (same versions as requirements-serve.txt) and its test client
+fastapi
+uvicorn[standard]
+prometheus-client
+httpx
+
 # Config
 pyyaml
 

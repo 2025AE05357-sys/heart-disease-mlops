@@ -1,0 +1,7 @@
+# Allow-list: the image needs only the serving lock, the package and the champion model.
+*
+!requirements-serve.txt
+!src/heartrisk/
+!models/champion/
+**/__pycache__
+**/*.pyc

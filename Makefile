@@ -13,7 +13,8 @@ export MLFLOW_TRACKING_URI
 
 .DEFAULT_GOAL := help
 .PHONY: help bootstrap check install lock lint format test data verify-data prepare eda \
-        train mlflow-ui experiments-report package all
+        train mlflow-ui experiments-report package all \
+        serve docker-build docker-run smoke docker-stop
 
 help: ## List targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -77,3 +78,30 @@ package: ## Export the registered champion -> models/champion/ + lineage.json + 
 	$(PYTHON) -m heartrisk.package
 
 all: verify-data prepare train package ## Full pipeline from committed raw data to a packaged model
+
+# ---- Stage 6: API + container ----------------------------------------------------------------
+IMAGE     ?= heartrisk-api
+# The commit, with "-dirty" when the working tree has uncommitted changes.
+IMAGE_TAG ?= $(shell git describe --always --dirty --abbrev=7 2>/dev/null || echo dev)
+MODEL_META = $(PYTHON) -c "import json,sys; print(json.load(open('models/champion/lineage.json'))['model'][sys.argv[1]])"
+
+serve: ## Run the API locally with auto-reload on http://localhost:8000
+	$(PYTHON) -m uvicorn heartrisk.api.app:app --reload --host 127.0.0.1 --port 8000
+
+docker-build: ## Build the API image, tagged with the git commit (and :latest)
+	docker build \
+	  --build-arg GIT_SHA=$(IMAGE_TAG) \
+	  --build-arg BUILD_DATE=$$(date -u +%Y-%m-%dT%H:%M:%SZ) \
+	  --build-arg MODEL_VERSION=$$($(MODEL_META) version) \
+	  --build-arg MODEL_RUN_ID=$$($(MODEL_META) run_id) \
+	  -t $(IMAGE):$(IMAGE_TAG) -t $(IMAGE):latest .
+	docker image ls $(IMAGE):$(IMAGE_TAG)
+
+docker-run: ## Start the container detached on http://localhost:8000
+	docker run -d --rm --name heartrisk-api -p 8000:8000 $(IMAGE):$(IMAGE_TAG)
+
+smoke: ## Smoke-test a running API (URL=... to override http://localhost:8000)
+	PYTHON=$(PYTHON) bash scripts/smoke.sh $(or $(URL),http://localhost:8000)
+
+docker-stop: ## Stop the container
+	docker stop heartrisk-api

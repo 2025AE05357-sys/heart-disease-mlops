@@ -36,10 +36,10 @@ from sklearn.metrics import f1_score, make_scorer, precision_score
 from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_split
 
 from heartrisk import evaluate, tracking, viz
+from heartrisk.columns import SITE_LABELS
 from heartrisk.config import load_config
 from heartrisk.data.clean import load_clean
 from heartrisk.data.download import sha256_bytes
-from heartrisk.data.schema import SITE_LABELS
 from heartrisk.features import build_pipeline, feature_frame
 from heartrisk.model_io import SKOPS_TRUSTED_TYPES
 

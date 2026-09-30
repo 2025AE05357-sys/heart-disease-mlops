@@ -12,7 +12,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from heartrisk.data.schema import FEATURES
+from heartrisk.columns import FEATURES
 
 __all__ = ["FEATURES", "HeartRateReserve", "build_pipeline", "build_preprocessor", "feature_frame"]
 
