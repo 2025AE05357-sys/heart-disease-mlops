@@ -23,7 +23,7 @@ the way that GxP-regulated clinical systems demand an audit trail.
 | 5 | CI/CD pipeline + automated tests | 8 | 🟡 workflow written and validated (actionlint); first run on first push |
 | 6 | Containerised serving API | 5 | ✅ |
 | 7 | Kubernetes deployment | 7 | ✅ LoadBalancer on localhost; Traefik Ingress overlay ready |
-| 8 | Monitoring + logging | 3 | ⏳ |
+| 8 | Monitoring + logging | 3 | ✅ Prometheus + Grafana; input-drift alerts fire on shifted traffic |
 | 9 | Report, screenshots, video | 2 | ⏳ |
 
 ## Repository layout
@@ -41,8 +41,10 @@ heart-disease-mlops/
 ├── Dockerfile               multi-stage, non-root API image with the champion baked in
 ├── samples/                 example /predict and /predict/batch payloads (real UCI rows)
 ├── k8s/                     kustomize: base, release component, overlays local (LB) + ingress
+├── monitoring/              Prometheus (discovery, rules, alerts) + Grafana (dashboard as code)
 ├── scripts/vm_bootstrap.sh  sets up WSL Ubuntu or the BITS lab VM
 ├── scripts/smoke.sh         end-to-end smoke test of a running API
+├── scripts/traffic.py       normal / shifted traffic generator for the drift demonstration
 ├── src/heartrisk/           data/, features, train, evaluate, tracking, package, api/ (FastAPI)
 ├── tests/                   pytest suite
 ├── notebooks/01_eda.ipynb   EDA notebook (executed by `make eda`)

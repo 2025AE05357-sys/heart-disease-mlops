@@ -1,0 +1,57 @@
+# Alerts watch the inputs as well as the outputs. On Swiss and VA patients the model under-calls
+# disease (external recall 0.48-0.64), so the predicted positive rate alone can stay quiet under
+# real drift; the input distribution and the imputation rate move reliably.
+groups:
+  - name: heartrisk
+    rules:
+      - record: heartrisk:positive_rate:5m
+        expr: >-
+          sum(rate(heartrisk_predictions_total{label="disease"}[5m]))
+          / sum(rate(heartrisk_predictions_total[5m]))
+
+      - record: heartrisk:input_mean:2m
+        expr: >-
+          sum by (feature) (rate(heartrisk_input_value_sum[2m]))
+          / sum by (feature) (rate(heartrisk_input_value_count[2m]))
+
+      - alert: HeartriskInputDrift
+        # Cleveland (training) mean maximum heart rate is 149.6 beats/min.
+        expr: abs(heartrisk:input_mean:2m{feature="thalach"} - 149.6) > 15
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Mean maximum heart rate has moved more than 15 beats/min from training"
+          description: >-
+            Mean thalach is {{ $value | printf "%.1f" }} beats/min away from the Cleveland
+            training mean (149.6). The population being scored differs from the one the model
+            was trained on; external validation showed ROC-AUC 0.70-0.74 on such sites.
+
+      - alert: HeartriskHighImputation
+        expr: >-
+          sum(rate(heartrisk_imputed_fields_total[5m]))
+          / sum(rate(heartrisk_predictions_total[5m])) > 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "More than one input per prediction is being imputed"
+          description: "Predictions rest increasingly on estimated values; check the sending site."
+
+      - alert: HeartriskPositiveRateHigh
+        expr: heartrisk:positive_rate:5m > 0.8
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "More than 80% of recent predictions are 'disease' (training prevalence 46%)"
+
+      - alert: HeartriskServerErrors
+        expr: >-
+          sum(rate(heartrisk_http_requests_total{status=~"5.."}[5m]))
+          / sum(rate(heartrisk_http_requests_total[5m])) > 0.01
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "More than 1% of API requests fail with a server error"

@@ -1,0 +1,24 @@
+# Prometheus + Grafana for the heart-risk API (Stage 8). Config files become ConfigMaps with a
+# content hash in their names, so editing a rule or the dashboard rolls the pods automatically.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: monitoring
+resources:
+  - namespace.yaml
+  - prometheus/rbac.yaml
+  - prometheus/deployment.yaml
+  - grafana/deployment.yaml
+configMapGenerator:
+  - name: prometheus-config
+    files:
+      - prometheus/prometheus.yml
+      - prometheus/alerts.yml
+  - name: grafana-datasources
+    files:
+      - grafana/datasources.yaml
+  - name: grafana-dashboard-provider
+    files:
+      - grafana/dashboards.yaml
+  - name: grafana-dashboards
+    files:
+      - grafana/heartrisk-dashboard.json

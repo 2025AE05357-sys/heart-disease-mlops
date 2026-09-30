@@ -15,7 +15,8 @@ export MLFLOW_TRACKING_URI
 .PHONY: help bootstrap check install lock lint format test data verify-data prepare eda \
         train mlflow-ui experiments-report package all \
         serve docker-build docker-run smoke docker-stop \
-        k8s-release k8s-validate k8s-deploy k8s-status k8s-smoke k8s-logs k8s-self-heal k8s-down
+        k8s-release k8s-validate k8s-deploy k8s-status k8s-smoke k8s-logs k8s-self-heal k8s-down \
+        monitoring-up grafana traffic traffic-shift monitoring-down
 
 help: ## List targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -151,3 +152,27 @@ k8s-self-heal: ## Delete one API pod and show the Deployment replacing it
 
 k8s-down: ## Remove the API from the cluster
 	kubectl delete -k $(K8S_OVERLAY) --ignore-not-found
+
+# ---- Stage 8: monitoring (Prometheus + Grafana in namespace monitoring) ------------------------
+monitoring-up: ## Deploy Prometheus + Grafana; creates the Grafana admin secret once
+	kubectl apply -f monitoring/namespace.yaml
+	@kubectl -n monitoring get secret grafana-admin >/dev/null 2>&1 || \
+	  kubectl -n monitoring create secret generic grafana-admin \
+	    --from-literal=password="$$(openssl rand -hex 12)"
+	kubectl apply -k monitoring
+	kubectl -n monitoring rollout status deploy/prometheus --timeout=180s
+	kubectl -n monitoring rollout status deploy/grafana --timeout=180s
+	@$(MAKE) --no-print-directory grafana
+
+grafana: ## Print the Grafana and Prometheus URLs and the Grafana admin password
+	@echo "Grafana     http://localhost:3000  user admin  password $$(kubectl -n monitoring get secret grafana-admin -o jsonpath='{.data.password}' | base64 -d)"
+	@echo "Prometheus  http://localhost:9090/targets  and  /alerts"
+
+traffic: ## 2 minutes of normal traffic (Cleveland patients) through the LoadBalancer
+	$(PYTHON) scripts/traffic.py --url $(or $(URL),http://localhost) --mode normal --duration 120
+
+traffic-shift: ## 2 minutes of shifted traffic (Swiss + VA patients): the drift demonstration
+	$(PYTHON) scripts/traffic.py --url $(or $(URL),http://localhost) --mode shift --duration 120
+
+monitoring-down: ## Remove Prometheus + Grafana (and their namespace)
+	kubectl delete -k monitoring --ignore-not-found
