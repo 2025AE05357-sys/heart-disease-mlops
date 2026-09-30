@@ -13,7 +13,7 @@ export MLFLOW_TRACKING_URI
 
 .DEFAULT_GOAL := help
 .PHONY: help bootstrap check install lock lint format test data verify-data prepare eda \
-        train mlflow-ui experiments-report package all \
+        train mlflow-ui experiments-report package all quality-gate \
         serve docker-build docker-run smoke docker-stop \
         k8s-release k8s-validate k8s-deploy k8s-status k8s-smoke k8s-logs k8s-self-heal k8s-down \
         monitoring-up grafana traffic traffic-shift monitoring-down report
@@ -80,6 +80,9 @@ package: ## Export the registered champion -> models/champion/ + lineage.json + 
 	$(PYTHON) -m heartrisk.package
 
 all: verify-data prepare train package ## Full pipeline from committed raw data to a packaged model
+
+quality-gate: ## D9: fail if the champion's hold-out ROC-AUC < MIN_ROC_AUC (default 0.80); SUMMARY=file
+	$(PYTHON) -m heartrisk.gate --min-roc-auc $(or $(MIN_ROC_AUC),0.80) $(if $(SUMMARY),--summary "$(SUMMARY)")
 
 # ---- Stage 6: API + container ----------------------------------------------------------------
 IMAGE     ?= heartrisk-api

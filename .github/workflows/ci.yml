@@ -99,9 +99,11 @@ jobs:
       - name: Package the champion (lineage + model card)
         run: make package
       - name: Quality gate D9 (hold-out ROC-AUC >= 0.80) and metrics summary
-        run: python -m heartrisk.gate --min-roc-auc 0.80 --summary "$GITHUB_STEP_SUMMARY"
+        run: make quality-gate MIN_ROC_AUC=0.80 SUMMARY="$GITHUB_STEP_SUMMARY"
       - name: Upstream UCI files still match the pinned checksums (non-blocking)
         continue-on-error: true
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src   # outside make, nothing else puts src/ on the path
         run: |
           mkdir -p "$RUNNER_TEMP/raw-check"
           cp data/raw/MANIFEST.json "$RUNNER_TEMP/raw-check/"
