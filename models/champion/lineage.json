@@ -1,19 +1,19 @@
 {
   "model": {
     "name": "heart-disease-classifier",
-    "version": 5,
+    "version": 7,
     "alias": "champion",
     "family": "logistic_regression",
     "selection_reason": "mean CV ROC-AUC 0.909 ties with random_forest 0.904 (within 0.01 of the best, 0.909), so recall decides: highest mean CV recall (0.819)",
-    "registered_at_utc": "2026-09-30T10:13:40Z",
-    "run_id": "4360f32280214178bc8258515ad18188",
-    "parent_run_id": "fc4c4bcf083e46f98cb2f8e8420423a7",
+    "registered_at_utc": "2026-09-30T11:52:52Z",
+    "run_id": "88944315034a467fae2a235ecf184d18",
+    "parent_run_id": "befa2158c330442fa15a62082f087f42",
     "file": "model.skops",
-    "file_sha256": "b1052bc4e4eafafa0d7b9ea8c7a609afe5af2509381dd0ee2c8a133ca8a79549"
+    "file_sha256": "187ffd0c642dd44839395cb06045389a65951528b169dae3188cd703ee05d425"
   },
   "code": {
-    "git_sha": "dcaed7b756e62c6959240ceeb215339f26b01d16",
-    "git_dirty": "true"
+    "git_sha": "24d1e22b77136be893a6cbb68107f526ec0eb93a",
+    "git_dirty": "false"
   },
   "data": {
     "clean_file": "data/processed/heart_clean.csv",

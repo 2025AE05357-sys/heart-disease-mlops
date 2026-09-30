@@ -1,4 +1,4 @@
-artifact_path: file:///home/rp/.heartrisk/mlflow/artifacts/models/m-bc0f8cde901d4fca97f29ce76a3e5c99/artifacts
+artifact_path: file:///home/rp/.heartrisk/mlflow/artifacts/models/m-70a4e383155942999108dfd14ef9a74f/artifacts
 flavors:
   python_function:
     env:
@@ -21,11 +21,11 @@ flavors:
     - sklearn.tree._tree.Tree
 is_signature_from_type_hint: false
 mlflow_version: 3.16.1
-model_id: m-bc0f8cde901d4fca97f29ce76a3e5c99
+model_id: m-70a4e383155942999108dfd14ef9a74f
 model_size_bytes: 284590
-model_uuid: m-bc0f8cde901d4fca97f29ce76a3e5c99
+model_uuid: m-70a4e383155942999108dfd14ef9a74f
 prompts: null
-run_id: 4360f32280214178bc8258515ad18188
+run_id: 88944315034a467fae2a235ecf184d18
 saved_input_example_info:
   artifact_path: input_example.json
   pandas_orient: split
@@ -44,4 +44,4 @@ signature:
   outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
   params: null
 type_hint_from_example: false
-utc_time_created: '2026-09-30 10:10:01.697746'
+utc_time_created: '2026-09-30 11:49:06.621626'
