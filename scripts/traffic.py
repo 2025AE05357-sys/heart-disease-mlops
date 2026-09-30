@@ -21,8 +21,21 @@ import urllib.request
 from collections import Counter
 from pathlib import Path
 
-FEATURES = ["age", "sex", "cp", "trestbps", "chol", "fbs", "restecg", "thalach", "exang",
-            "oldpeak", "slope", "ca", "thal"]  # fmt: skip
+FEATURES = [
+    "age",
+    "sex",
+    "cp",
+    "trestbps",
+    "chol",
+    "fbs",
+    "restecg",
+    "thalach",
+    "exang",
+    "oldpeak",
+    "slope",
+    "ca",
+    "thal",
+]
 SITES = {"normal": {"cleveland"}, "shift": {"switzerland", "va"}}
 
 
@@ -33,8 +46,12 @@ def load_patients(path: Path, mode: str) -> list[dict]:
         for row in csv.DictReader(fh):
             if row["site"] in SITES[mode]:
                 patients.append(
-                    {f: None if row[f] == "" else (float(row[f]) if f == "oldpeak" else int(row[f]))
-                     for f in FEATURES}  # fmt: skip
+                    {
+                        f: None
+                        if row[f] == ""
+                        else (float(row[f]) if f == "oldpeak" else int(row[f]))
+                        for f in FEATURES
+                    }
                 )
     return patients
 
@@ -42,9 +59,11 @@ def load_patients(path: Path, mode: str) -> list[dict]:
 def post(url: str, payload: dict, request_id: str) -> tuple[int, dict]:
     body = json.dumps(payload).encode("utf-8")
     request = urllib.request.Request(
-        url, data=body, method="POST",
+        url,
+        data=body,
+        method="POST",
         headers={"Content-Type": "application/json", "X-Request-ID": request_id},
-    )  # fmt: skip
+    )
     try:
         with urllib.request.urlopen(request, timeout=5) as response:
             return response.status, json.loads(response.read())
@@ -69,8 +88,10 @@ def main(argv: list[str] | None = None) -> int:
     statuses, labels = Counter(), Counter()
     started = last_report = time.monotonic()
     sent = 0
-    print(f"{args.mode} traffic: {len(patients)} patients, {args.rate}/s for {args.duration:.0f} s "
-          f"-> {endpoint}")  # fmt: skip
+    print(
+        f"{args.mode} traffic: {len(patients)} patients, {args.rate}/s for {args.duration:.0f} s "
+        f"-> {endpoint}"
+    )
     while time.monotonic() - started < args.duration:
         payload = dict(rng.choice(patients))
         if rng.random() < args.invalid:
@@ -83,8 +104,10 @@ def main(argv: list[str] | None = None) -> int:
         now = time.monotonic()
         if now - last_report >= 10:
             positive = labels["disease"] / max(1, sum(labels.values()))
-            print(f"  {now - started:5.0f} s  sent {sent:5d}  status {dict(statuses)}  "
-                  f"positive rate {positive:.0%}")  # fmt: skip
+            print(
+                f"  {now - started:5.0f} s  sent {sent:5d}  status {dict(statuses)}  "
+                f"positive rate {positive:.0%}"
+            )
             last_report = now
         time.sleep(max(0.0, started + sent / args.rate - time.monotonic()))
     positive = labels["disease"] / max(1, sum(labels.values()))

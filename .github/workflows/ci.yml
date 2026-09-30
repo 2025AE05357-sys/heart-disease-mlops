@@ -36,9 +36,9 @@ jobs:
       - name: Install ruff at the version pinned in requirements.txt
         run: pip install "$(grep -E '^ruff==' requirements.txt | cut -d' ' -f1)"
       - name: ruff check
-        run: ruff check --output-format=github src tests
+        run: ruff check --output-format=github src tests scripts
       - name: ruff format --check
-        run: ruff format --check src tests
+        run: ruff format --check src tests scripts
 
   test:
     name: Unit tests

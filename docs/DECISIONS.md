@@ -20,6 +20,8 @@ plan (D0–D15); each one is added at the stage that needs it.
 | D10 | 5/6 | Push the image to GHCR from CI? | Not yet: CI builds and smoke-tests the image; the cluster uses the locally built image | 30 Sep 2026 (provisional) |
 | D11 | 7 | Exposure | LoadBalancer service on localhost:80 now; Traefik Ingress overlay ready, pending approval to install Helm | 30 Sep 2026 (provisional) |
 | D12 | 7 | Horizontal Pod Autoscaler | Not now: needs metrics-server; 2 fixed replicas with a disruption budget | 30 Sep 2026 (provisional) |
+| D13 | 9 | Architecture diagram tool | Mermaid: renders on GitHub and, through mermaid.js, in the PDF report | 30 Sep 2026 (provisional) |
+| D14 | 9 | Report tooling | Markdown -> HTML -> PDF with Chrome (Playwright); MathJax formulas, Mermaid diagram | 30 Sep 2026 (provisional) |
 
 "Provisional" marks a decision taken with the plan's recommendation while I was away, to be
 confirmed or changed. Each lives in `configs/train.yaml`, so changing one is a config edit and a
@@ -135,7 +137,7 @@ stays in the search, so the question is re-asked on every retraining.
 
 The formula:
 
-$$\text{hr\_pct\_pred} = \frac{\text{thalach}}{220 - \text{age}}$$
+$$\mathrm{hr\_pct\_pred} = \frac{\text{thalach}}{220 - \text{age}}$$
 
 **Notation:** $\text{thalach}$ = maximum heart rate reached in the exercise test (beats/min);
 $\text{age}$ = age (years); $220 - \text{age}$ = conventional age-predicted maximum heart rate
@@ -287,3 +289,20 @@ PodDisruptionBudget of `minAvailable: 1`.
 **Reason:** an HPA needs metrics-server, which the Docker Desktop cluster does not ship. Two
 replicas already give self-healing and zero-downtime rollouts, which is what the brief asks to
 demonstrate; load-driven scaling would add a component without adding evidence.
+
+---
+
+## D13 and D14: Diagram and report tooling (provisional)
+
+| Option | What it means |
+|---|---|
+| **Mermaid diagram; Markdown -> HTML -> PDF in Chrome** | One diagram source that GitHub renders natively and the report reuses; the report is plain Markdown in git, built with tools already on this machine |
+| pandoc | Not installed; installing it needs `sudo` |
+| A drawn PNG diagram | A second copy of the architecture to keep in sync by hand |
+
+**Choice:** `docs/report/report.md` built by `make report` (`scripts/build_report.py`); formulas
+typeset by MathJax, the diagram by mermaid.js; screenshots not yet taken print as labelled
+placeholders, so the report can be rebuilt the moment they are added.
+
+**Reason:** everything that describes the system stays text under version control, reviewable as
+a diff, and the PDF is always one command away from the Markdown.

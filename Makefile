@@ -16,10 +16,10 @@ export MLFLOW_TRACKING_URI
         train mlflow-ui experiments-report package all \
         serve docker-build docker-run smoke docker-stop \
         k8s-release k8s-validate k8s-deploy k8s-status k8s-smoke k8s-logs k8s-self-heal k8s-down \
-        monitoring-up grafana traffic traffic-shift monitoring-down
+        monitoring-up grafana traffic traffic-shift monitoring-down report
 
 help: ## List targets
-	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
+	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
 bootstrap: ## Set up this Linux shell (WSL or lab VM): tools, kubeconfig, venv. Re-runnable
 	bash scripts/vm_bootstrap.sh
@@ -38,12 +38,12 @@ lock: ## Re-resolve both locks: requirements.txt, then requirements-serve.txt co
 	  --python-version 3.12 --python-platform x86_64-unknown-linux-gnu --annotation-style line
 
 lint: ## Static checks (fails the pipeline on any finding)
-	$(PYTHON) -m ruff check src tests
-	$(PYTHON) -m ruff format --check src tests
+	$(PYTHON) -m ruff check src tests scripts
+	$(PYTHON) -m ruff format --check src tests scripts
 
 format: ## Auto-fix lint + formatting
-	$(PYTHON) -m ruff check --fix src tests
-	$(PYTHON) -m ruff format src tests
+	$(PYTHON) -m ruff check --fix src tests scripts
+	$(PYTHON) -m ruff format src tests scripts
 
 test: ## Unit tests with coverage
 	$(PYTHON) -m pytest --cov=heartrisk --cov-report=term-missing
@@ -176,3 +176,10 @@ traffic-shift: ## 2 minutes of shifted traffic (Swiss + VA patients): the drift 
 
 monitoring-down: ## Remove Prometheus + Grafana (and their namespace)
 	kubectl delete -k monitoring --ignore-not-found
+
+# ---- Stage 9: report ----------------------------------------------------------------------------
+# Built with Chrome through Playwright; on this machine that is the Windows Python (python.exe via
+# WSL interop). Override REPORT_PYTHON for any Python with `markdown` and `playwright` installed.
+REPORT_PYTHON ?= python.exe
+report: ## docs/report/report.md -> docs/report/report.pdf (lists screenshots still missing)
+	$(REPORT_PYTHON) scripts/build_report.py

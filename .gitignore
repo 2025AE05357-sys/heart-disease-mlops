@@ -31,3 +31,6 @@ desktop.ini
 
 # Generated per release by `make k8s-release`
 k8s/components/release/release.env
+
+# Intermediate output of scripts/build_report.py --keep-html
+docs/report/report.html
