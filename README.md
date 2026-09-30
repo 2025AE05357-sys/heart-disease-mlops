@@ -22,7 +22,7 @@ way GxP-regulated clinical systems demand an audit trail.
 | 2 | Feature engineering + model development | 8 | ✅ |
 | 3 | Experiment tracking (MLflow) | 5 | ✅ |
 | 4 | Model packaging + reproducibility | 7 | ✅ |
-| 5 | CI/CD pipeline + automated tests | 8 | 🟡 workflow written and validated (actionlint); first run on first push |
+| 5 | CI/CD pipeline + automated tests | 8 | ✅ green on GitHub Actions (lint, 104 tests, reproducible data, training + quality gate, container smoke test) |
 | 6 | Containerised serving API | 5 | ✅ |
 | 7 | Kubernetes deployment | 7 | ✅ LoadBalancer on localhost; Traefik Ingress overlay ready |
 | 8 | Monitoring + logging | 3 | ✅ Prometheus + Grafana; input-drift alerts fire on shifted traffic |
