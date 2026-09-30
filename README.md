@@ -41,6 +41,7 @@ heart-disease-mlops/
 ├── data/raw/                downloaded source files (with checksums)
 ├── data/processed/          cleaned dataset
 ├── reports/                 generated figures and metrics
+├── docs/DECISIONS.md        design decisions: options, choice, reason
 └── docs/screenshots/        evidence for the report
 ```
 
