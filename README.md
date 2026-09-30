@@ -15,7 +15,7 @@ the way that GxP-regulated clinical systems demand an audit trail.
 
 | # | Task | Marks | Status |
 |---|---|---|---|
-| 0 | Lab VM environment + repo skeleton | – | ✅ |
+| 0 | Environment (WSL2 + Docker Desktop; lab VM alternative) + repo skeleton | – | ✅ |
 | 1 | Data acquisition, cleaning, EDA | 5 | ⏳ |
 | 2 | Feature engineering + model development | 8 | ⏳ |
 | 3 | Experiment tracking (MLflow) | 5 | ⏳ |
@@ -34,7 +34,7 @@ heart-disease-mlops/
 ├── requirements.in          direct dependencies (human-edited)
 ├── requirements.txt         fully pinned lock for Python 3.12 (`make lock`)
 ├── pyproject.toml           package metadata + ruff/pytest config
-├── scripts/vm_bootstrap.sh  sets up a fresh BITS lab VM
+├── scripts/vm_bootstrap.sh  sets up WSL Ubuntu or the BITS lab VM
 ├── src/heartrisk/           the Python package (data, features, training, serving)
 ├── tests/                   pytest suite
 ├── notebooks/               EDA notebook
@@ -44,34 +44,48 @@ heart-disease-mlops/
 └── docs/screenshots/        evidence for the report
 ```
 
-## Environment: BITS Prayogshala lab VM
+## Environment
 
-All pipeline stages run on the course's virtual lab VM (Rocky Linux 9.5, 4 vCPU, 15 GB RAM,
-Docker 28, minikube 1.35, Python 3.12). Only `~/workspace` survives VM termination, so the
-bootstrap script keeps caches and git settings there and rebuilds everything else in 1–2 minutes.
+| | Primary: local PC | Alternative: BITS lab VM |
+|---|---|---|
+| Shell | WSL2 Ubuntu 24.04 (Python 3.12) | Rocky Linux 9.5 (Python 3.12) |
+| Containers | Docker Desktop (WSL integration on) | Docker Engine |
+| Kubernetes | Docker Desktop's built-in cluster (kubeadm, single node) | minikube (docker driver) + ingress addon |
+| Use | Day-to-day development, deployment, screenshots | Clean-machine reproducibility check |
 
-### First time only
+The repository lives on the Windows drive and is used from Ubuntu through `/mnt/d/...`.
+Commits are made from Windows; the Python virtual environment lives inside WSL (`~/.venvs/heartrisk`)
+for speed. `scripts/vm_bootstrap.sh` detects which environment it is in.
+
+### Local PC: one-time setup
+
+1. Docker Desktop → Settings → Resources → WSL integration → enable **Ubuntu-24.04** → Apply & restart.
+2. Docker Desktop → Kubernetes → **Create cluster** → kubeadm (single node) → wait until it shows as running.
+3. In Ubuntu:
+
+```bash
+cd "/mnt/d/Mtech_BITS_2025/github-repo/MLOps (S1-26_AIMLZG523)/assignment1/heart-disease-mlops"
+bash scripts/vm_bootstrap.sh     # asks once for your Linux password (apt: make, python3-venv)
+source ~/.bashrc
+make check && make test
+```
+
+After that, a new Ubuntu terminal auto-activates the venv and `hr` jumps to the repo.
+
+### BITS lab VM (alternative)
+
+First time:
 
 ```bash
 cd ~/workspace
 git clone https://github.com/<github-user>/heart-disease-mlops.git   # password = your GitHub token
 cd heart-disease-mlops
-bash scripts/vm_bootstrap.sh
-source ~/.bashrc
+bash scripts/vm_bootstrap.sh && source ~/.bashrc
 git config --global user.name  "Your Name"        # stored in ~/workspace, so asked only once
 git config --global user.email "you@example.com"
 ```
 
-### Every fresh VM (after Terminate, or on a new day)
+Every fresh VM: `cd ~/workspace/heart-disease-mlops && git pull && bash scripts/vm_bootstrap.sh && source ~/.bashrc`
 
-```bash
-cd ~/workspace/heart-disease-mlops && git pull && bash scripts/vm_bootstrap.sh && source ~/.bashrc
-```
-
-### Lab VM rules that shape this repo
-
-| Rule | How the repo copes |
-|---|---|
-| Only `~/workspace` persists | pip cache, kubectl download and git config live under `~/workspace`; the venv is rebuilt on local disk (faster imports than network storage) |
-| 15 min idle → terminated; stopped > 60 min → terminated | Every stage is one `make` target, so a new VM gets back to any stage quickly |
-| Software installs are temporary | `vm_bootstrap.sh` is idempotent and re-installs `make` and `kubectl` |
+Only `~/workspace` survives VM termination, so the script keeps the pip cache, kubectl download and
+git config there, and rebuilds the rest (venv on local disk, `make`, `kubectl`) in 1–2 minutes.
