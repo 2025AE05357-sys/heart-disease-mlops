@@ -14,7 +14,8 @@ export MLFLOW_TRACKING_URI
 .DEFAULT_GOAL := help
 .PHONY: help bootstrap check install lock lint format test data verify-data prepare eda \
         train mlflow-ui experiments-report package all \
-        serve docker-build docker-run smoke docker-stop
+        serve docker-build docker-run smoke docker-stop \
+        k8s-release k8s-validate k8s-deploy k8s-status k8s-smoke k8s-logs k8s-self-heal k8s-down
 
 help: ## List targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -105,3 +106,48 @@ smoke: ## Smoke-test a running API (URL=... to override http://localhost:8000)
 
 docker-stop: ## Stop the container
 	docker stop heartrisk-api
+
+# ---- Stage 7: Kubernetes (Docker Desktop cluster) ---------------------------------------------
+K8S_OVERLAY ?= k8s/overlays/local
+K8S_NS      := heartrisk
+K8S_APP     := -l app.kubernetes.io/name=heartrisk-api
+RELEASE_ENV := k8s/components/release/release.env
+
+k8s-release: ## Write the release values (image tag, commit, model version, run) for kustomize
+	@printf 'IMAGE_TAG=%s\nGIT_SHA=%s\nMODEL_VERSION=%s\nMODEL_RUN_ID=%s\n' \
+	  "$(IMAGE_TAG)" "$$(git rev-parse HEAD 2>/dev/null || echo unknown)" \
+	  "$$($(MODEL_META) version)" "$$($(MODEL_META) run_id)" > $(RELEASE_ENV)
+	@cat $(RELEASE_ENV)
+
+k8s-validate: k8s-release ## Server-side dry run of both overlays (schema + admission checks)
+	@# A dry run cannot place objects in a namespace that does not exist yet, so create it first.
+	kubectl apply -f k8s/base/namespace.yaml
+	kubectl apply --dry-run=server -k k8s/overlays/local
+	kubectl apply --dry-run=server -k k8s/overlays/ingress
+
+k8s-deploy: docker-build k8s-release ## Build the image, apply the overlay, wait for the rollout
+	kubectl apply -k $(K8S_OVERLAY)
+	kubectl -n $(K8S_NS) rollout status deploy/heartrisk-api --timeout=180s
+
+k8s-status: ## Deployment, pods, service, PDB and the release record
+	kubectl -n $(K8S_NS) get deploy,rs,pods,svc,pdb -o wide
+	kubectl -n $(K8S_NS) get cm heartrisk-release -o jsonpath='{.data}{"\n"}'
+
+k8s-smoke: ## Smoke test through the LoadBalancer (URL=... to override http://localhost)
+	PYTHON=$(PYTHON) bash scripts/smoke.sh $(or $(URL),http://localhost)
+
+k8s-logs: ## Recent JSON logs from every API pod
+	kubectl -n $(K8S_NS) logs $(K8S_APP) --tail=20 --prefix
+
+k8s-self-heal: ## Delete one API pod and show the Deployment replacing it
+	kubectl -n $(K8S_NS) get pods $(K8S_APP)
+	kubectl -n $(K8S_NS) delete pod "$$(kubectl -n $(K8S_NS) get pods $(K8S_APP) -o jsonpath='{.items[0].metadata.name}')"
+	@for i in $$(seq 1 60); do \
+	  ready="$$(kubectl -n $(K8S_NS) get deploy heartrisk-api -o jsonpath='{.status.readyReplicas}')"; \
+	  [ "$$ready" = "$$(kubectl -n $(K8S_NS) get deploy heartrisk-api -o jsonpath='{.spec.replicas}')" ] && break; \
+	  sleep 2; \
+	done
+	kubectl -n $(K8S_NS) get pods $(K8S_APP)
+
+k8s-down: ## Remove the API from the cluster
+	kubectl delete -k $(K8S_OVERLAY) --ignore-not-found

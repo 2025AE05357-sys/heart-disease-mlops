@@ -18,6 +18,8 @@ plan (D0–D15); each one is added at the stage that needs it.
 | D8 | 4 | Commit `models/champion/`? | Yes: the exact registered artifact plus `lineage.json` | 30 Sep 2026 (provisional) |
 | D9 | 5 | CI quality gate | Fail the train job if the champion's hold-out ROC-AUC is below 0.80 | 30 Sep 2026 (provisional) |
 | D10 | 5/6 | Push the image to GHCR from CI? | Not yet: CI builds and smoke-tests the image; the cluster uses the locally built image | 30 Sep 2026 (provisional) |
+| D11 | 7 | Exposure | LoadBalancer service on localhost:80 now; Traefik Ingress overlay ready, pending approval to install Helm | 30 Sep 2026 (provisional) |
+| D12 | 7 | Horizontal Pod Autoscaler | Not now: needs metrics-server; 2 fixed replicas with a disruption budget | 30 Sep 2026 (provisional) |
 
 "Provisional" marks a decision taken with the plan's recommendation while I was away, to be
 confirmed or changed. Each lives in `configs/train.yaml`, so changing one is a config edit and a
@@ -257,3 +259,31 @@ the data (D1), not a regression.
 **Reason:** the deployment target is the local Docker Desktop cluster, which uses the local image
 store, so a registry adds a secret to manage without changing what is deployed. It is a small,
 self-contained addition (`packages: write`, login, push) if a remote cluster is ever used.
+
+---
+
+## D11: Exposure (provisional)
+
+| Option | What it means |
+|---|---|
+| **LoadBalancer service now; Traefik Ingress as a ready overlay** | Docker Desktop publishes a LoadBalancer on localhost:80, so the API is reachable with no extra component; `k8s/overlays/ingress` adds an Ingress for `heartrisk.localtest.me` once Traefik is installed |
+| Traefik Ingress only | Needs Helm (not installed on this machine) and a cluster-wide controller |
+| ingress-nginx | The Kubernetes project retired it (best-effort maintenance ended March 2026) |
+
+**Choice:** `k8s/overlays/local` (LoadBalancer) is deployed; `k8s/overlays/ingress` passes a
+server-side dry run and is the switch-over once Helm may be installed.
+
+**Reason:** the brief accepts a load balancer or an ingress. The LoadBalancer route works today
+with nothing else installed; the ingress overlay keeps the more production-like option one command
+away without blocking the deployment on a tooling decision.
+
+---
+
+## D12: Horizontal Pod Autoscaler (provisional)
+
+**Choice:** no HPA for now; two fixed replicas, `maxUnavailable: 0` rollouts and a
+PodDisruptionBudget of `minAvailable: 1`.
+
+**Reason:** an HPA needs metrics-server, which the Docker Desktop cluster does not ship. Two
+replicas already give self-healing and zero-downtime rollouts, which is what the brief asks to
+demonstrate; load-driven scaling would add a component without adding evidence.

@@ -1,0 +1,60 @@
+# Stamps one release onto the Deployment: image tag, git commit, model version and MLflow run.
+# `make k8s-release` writes release.env (git-ignored) from the git state and
+# models/champion/lineage.json; the values are also kept in-cluster in ConfigMap
+# heartrisk-release, so `kubectl get cm heartrisk-release -o yaml` answers "what is deployed?".
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+configMapGenerator:
+  - name: heartrisk-release
+    envs:
+      - release.env
+    options:
+      disableNameSuffixHash: true
+      labels:
+        app.kubernetes.io/part-of: heartrisk
+
+replacements:
+  - source:
+      kind: ConfigMap
+      name: heartrisk-release
+      fieldPath: data.IMAGE_TAG
+    targets:
+      - select:
+          kind: Deployment
+          name: heartrisk-api
+        fieldPaths:
+          - spec.template.spec.containers.[name=api].image
+        options:
+          delimiter: ":"
+          index: 1
+  - source:
+      kind: ConfigMap
+      name: heartrisk-release
+      fieldPath: data.GIT_SHA
+    targets:
+      - select:
+          kind: Deployment
+          name: heartrisk-api
+        fieldPaths:
+          - spec.template.metadata.annotations.[heartrisk.io/git-sha]
+  - source:
+      kind: ConfigMap
+      name: heartrisk-release
+      fieldPath: data.MODEL_VERSION
+    targets:
+      - select:
+          kind: Deployment
+          name: heartrisk-api
+        fieldPaths:
+          - spec.template.metadata.annotations.[heartrisk.io/model-version]
+  - source:
+      kind: ConfigMap
+      name: heartrisk-release
+      fieldPath: data.MODEL_RUN_ID
+    targets:
+      - select:
+          kind: Deployment
+          name: heartrisk-api
+        fieldPaths:
+          - spec.template.metadata.annotations.[heartrisk.io/model-run-id]

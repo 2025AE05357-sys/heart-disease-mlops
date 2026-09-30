@@ -1,0 +1,10 @@
+# The namespace enforces the "restricted" Pod Security Standard: Kubernetes itself rejects any
+# pod here that runs as root, can escalate privileges, keeps capabilities or lacks seccomp.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: heartrisk
+  labels:
+    app.kubernetes.io/part-of: heartrisk
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest

@@ -22,7 +22,7 @@ the way that GxP-regulated clinical systems demand an audit trail.
 | 4 | Model packaging + reproducibility | 7 | ✅ |
 | 5 | CI/CD pipeline + automated tests | 8 | 🟡 workflow written and validated (actionlint); first run on first push |
 | 6 | Containerised serving API | 5 | ✅ |
-| 7 | Kubernetes deployment | 7 | ⏳ |
+| 7 | Kubernetes deployment | 7 | ✅ LoadBalancer on localhost; Traefik Ingress overlay ready |
 | 8 | Monitoring + logging | 3 | ⏳ |
 | 9 | Report, screenshots, video | 2 | ⏳ |
 
@@ -40,6 +40,7 @@ heart-disease-mlops/
 ├── .github/workflows/ci.yml lint -> test -> train (quality gate) + docker build and smoke test
 ├── Dockerfile               multi-stage, non-root API image with the champion baked in
 ├── samples/                 example /predict and /predict/batch payloads (real UCI rows)
+├── k8s/                     kustomize: base, release component, overlays local (LB) + ingress
 ├── scripts/vm_bootstrap.sh  sets up WSL Ubuntu or the BITS lab VM
 ├── scripts/smoke.sh         end-to-end smoke test of a running API
 ├── src/heartrisk/           data/, features, train, evaluate, tracking, package, api/ (FastAPI)

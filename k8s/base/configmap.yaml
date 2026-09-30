@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: heartrisk-api-config
+  labels:
+    app.kubernetes.io/name: heartrisk-api
+    app.kubernetes.io/part-of: heartrisk
+data:
+  LOG_LEVEL: INFO
+  AUDIT_LOG_INPUTS: "false"          # audit lines carry an input hash, never raw clinical values
+  MODEL_DIR: /app/models/champion

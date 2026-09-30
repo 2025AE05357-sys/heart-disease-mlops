@@ -1,0 +1,13 @@
+# Voluntary disruptions (node drain, cluster upgrade) must leave at least one pod serving.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: heartrisk-api
+  labels:
+    app.kubernetes.io/name: heartrisk-api
+    app.kubernetes.io/part-of: heartrisk
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: heartrisk-api

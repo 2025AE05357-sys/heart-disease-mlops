@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: heartrisk-api
+  labels:
+    app.kubernetes.io/name: heartrisk-api
+    app.kubernetes.io/part-of: heartrisk
+spec:
+  type: ClusterIP              # overlays/local switches this to LoadBalancer
+  selector:
+    app.kubernetes.io/name: heartrisk-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
