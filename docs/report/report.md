@@ -262,8 +262,10 @@ end-to-end training, packaging and API tests, and security tests for the model l
 | `docker` | Build the image tagged with the commit, run it, smoke-test it | Image size, container logs |
 
 Each job has a timeout, runs bash with `-euo pipefail`, and uses the current major versions of the
-official actions; the workflow passes actionlint. A deliberately failing test on a separate branch
-demonstrates that the pipeline stops with a clear log.
+official actions; the workflow passes actionlint. The first run on `main` shows a failure being
+caught: the quality-gate step invoked the gate module without the package on its import path, so the
+job stopped with a clear `ModuleNotFoundError` in the log. Running the gate through `make` fixed it
+(commit `60f4cd9`), and the following runs were green.
 
 ![CI run with all jobs green](../screenshots/07_ci_green.png)
 
@@ -271,7 +273,7 @@ demonstrates that the pipeline stops with a clear log.
 
 ![Job summary with the quality gate and metrics](../screenshots/09_ci_summary.png)
 
-![A failing test stops the pipeline](../screenshots/10_ci_failure.png)
+![A failing quality-gate step stops the pipeline (run #1)](../screenshots/10_ci_failure.png)
 
 ## 8. Serving and containerisation
 
@@ -319,7 +321,7 @@ The manifests use kustomize: a base, a release component and two overlays.
 The brief allows a load balancer or an ingress (D11). The LoadBalancer overlay is deployed; an
 ingress overlay for Traefik at `heartrisk.localtest.me` passes a server-side dry run and is ready
 for when an ingress controller is installed. Deleting a pod demonstrates self-healing: the
-Deployment replaced it within 14 seconds while the other pod kept serving.
+Deployment had a replacement pod Ready within about 20 seconds while the other pod kept serving.
 
 ![Pods, service and deployment in the cluster](../screenshots/15_k8s_get_all.png)
 
