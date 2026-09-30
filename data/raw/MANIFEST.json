@@ -1,0 +1,40 @@
+{
+  "dataset": "UCI Heart Disease (dataset 45)",
+  "doi": "10.24432/C52P4X",
+  "licence": "CC BY 4.0",
+  "citation": "Janosi, A., Steinbrunn, W., Pfisterer, M., & Detrano, R. (1989). Heart Disease [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C52P4X",
+  "files": [
+    {
+      "site": "cleveland",
+      "file": "cleveland.data",
+      "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data",
+      "bytes": 18461,
+      "sha256": "a74b7efa387bc9d108d7d0115d831fe9b414b29ae7124f331b622b4efa0427c8",
+      "retrieved_at_utc": "2026-09-30T09:34:03Z"
+    },
+    {
+      "site": "hungary",
+      "file": "hungary.data",
+      "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.hungarian.data",
+      "bytes": 10263,
+      "sha256": "d1ad108f785768cd3d7e82dc522e6f5a61eea93cccfb3a46ee8076f73fc3d796",
+      "retrieved_at_utc": "2026-09-30T09:34:03Z"
+    },
+    {
+      "site": "switzerland",
+      "file": "switzerland.data",
+      "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.switzerland.data",
+      "bytes": 4109,
+      "sha256": "834a405ccf5b66ab4056bb77794adc8df0b7125186454c0a1d002d33c6c3b314",
+      "retrieved_at_utc": "2026-09-30T09:34:03Z"
+    },
+    {
+      "site": "va",
+      "file": "va.data",
+      "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.va.data",
+      "bytes": 6737,
+      "sha256": "e7c93d8d0d2acdadfa4c5e8de768e2191e7f618b952e29623f1f0d5949ff6b8f",
+      "retrieved_at_utc": "2026-09-30T09:34:04Z"
+    }
+  ]
+}

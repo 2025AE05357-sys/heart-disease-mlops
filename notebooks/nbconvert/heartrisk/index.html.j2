@@ -1,0 +1,10 @@
+{%- extends 'lab/index.html.j2' -%}
+{#- The stock lab template, plus the alt text IPython stores in each image's output metadata. -#}
+{% block data_png scoped %}
+<div class="jp-RenderedImage jp-OutputArea-output {{ extra_class }}">
+<img src="data:image/png;base64,{{ output.data['image/png'] | escape_html }}"
+ alt="{{ ((output | get_metadata('alt', 'image/png')) or '') | escape_html }}"
+{%- set width = output | get_metadata('width', 'image/png') -%}
+{%- if width is not none %} width={{ width | escape_html }}{%- endif %}>
+</div>
+{%- endblock data_png %}

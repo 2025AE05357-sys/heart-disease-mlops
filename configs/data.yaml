@@ -1,0 +1,52 @@
+# Data acquisition and validation-gate settings (Stage 1).
+# Ranges and code sets are clinical plausibility bounds, not fitted to the data;
+# every value here is enforced by the pandera schema built in heartrisk.data.schema.
+
+source:
+  name: UCI Heart Disease (dataset 45)
+  base_url: https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/
+  fallback_zip: https://archive.ics.uci.edu/static/public/45/heart+disease.zip
+  doi: 10.24432/C52P4X
+  licence: CC BY 4.0
+  citation: >-
+    Janosi, A., Steinbrunn, W., Pfisterer, M., & Detrano, R. (1989). Heart Disease [Dataset].
+    UCI Machine Learning Repository. https://doi.org/10.24432/C52P4X
+
+# One entry per hospital. Keys become the `site` column and the local file name (<site>.data).
+sites:
+  cleveland:   {file: processed.cleveland.data,   label: Cleveland,     expected_rows: 303}
+  hungary:     {file: processed.hungarian.data,   label: Hungary,       expected_rows: 294}
+  switzerland: {file: processed.switzerland.data, label: Switzerland,   expected_rows: 123}
+  va:          {file: processed.va.data,          label: VA Long Beach, expected_rows: 200}
+
+missing_token: "?"
+
+# D2: a zero here is a site's code for "not measured", so it becomes a missing value.
+zero_means_missing: [trestbps, chol]
+
+# Inclusive plausibility bounds for continuous measurements.
+ranges:
+  age: [18, 100]          # years
+  trestbps: [60, 260]     # resting blood pressure, mm Hg
+  chol: [80, 700]         # serum cholesterol, mg/dl
+  thalach: [50, 230]      # maximum heart rate achieved, beats/min
+  oldpeak: [-3.0, 7.0]    # ST depression vs rest, mm (negative = ST elevation)
+
+# Allowed codes for categorical, binary and ordinal columns.
+codes:
+  sex: [0, 1]
+  cp: [1, 2, 3, 4]
+  fbs: [0, 1]
+  restecg: [0, 1, 2]
+  exang: [0, 1]
+  slope: [1, 2, 3]
+  ca: [0, 1, 2, 3]
+  thal: [3, 6, 7]
+  num: [0, 1, 2, 3, 4]
+
+gate:
+  max_rejection_rate: 0.05   # per site; above this the gate fails the run
+
+paths:
+  raw_dir: data/raw
+  processed_dir: data/processed

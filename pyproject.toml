@@ -23,3 +23,6 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM"]
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-ra -p no:cacheprovider"
+
+[tool.coverage.report]
+exclude_also = ['if __name__ == "__main__":']

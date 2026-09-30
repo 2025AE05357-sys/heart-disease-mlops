@@ -1,0 +1,144 @@
+{
+  "status": "pass",
+  "gate": {
+    "max_rejection_rate": 0.05,
+    "zero_means_missing": [
+      "trestbps",
+      "chol"
+    ],
+    "rules": "ranges and codes in configs/data.yaml"
+  },
+  "failures": [],
+  "totals": {
+    "rows_read": 920,
+    "rows_accepted": 920,
+    "rows_rejected": 0
+  },
+  "sites": {
+    "cleveland": {
+      "label": "Cleveland",
+      "input_sha256": "a74b7efa387bc9d108d7d0115d831fe9b414b29ae7124f331b622b4efa0427c8",
+      "rows_read": 303,
+      "rows_expected": 303,
+      "rows_accepted": 303,
+      "rows_rejected": 0,
+      "rejection_rate": 0.0,
+      "zeros_recoded": {
+        "trestbps": 0,
+        "chol": 0
+      },
+      "exact_duplicates": 0,
+      "disease_pct": 45.9,
+      "missing_pct": {
+        "age": 0.0,
+        "sex": 0.0,
+        "cp": 0.0,
+        "trestbps": 0.0,
+        "chol": 0.0,
+        "fbs": 0.0,
+        "restecg": 0.0,
+        "thalach": 0.0,
+        "exang": 0.0,
+        "oldpeak": 0.0,
+        "slope": 0.0,
+        "ca": 1.3,
+        "thal": 0.7
+      }
+    },
+    "hungary": {
+      "label": "Hungary",
+      "input_sha256": "d1ad108f785768cd3d7e82dc522e6f5a61eea93cccfb3a46ee8076f73fc3d796",
+      "rows_read": 294,
+      "rows_expected": 294,
+      "rows_accepted": 294,
+      "rows_rejected": 0,
+      "rejection_rate": 0.0,
+      "zeros_recoded": {
+        "trestbps": 0,
+        "chol": 0
+      },
+      "exact_duplicates": 1,
+      "disease_pct": 36.1,
+      "missing_pct": {
+        "age": 0.0,
+        "sex": 0.0,
+        "cp": 0.0,
+        "trestbps": 0.3,
+        "chol": 7.8,
+        "fbs": 2.7,
+        "restecg": 0.3,
+        "thalach": 0.3,
+        "exang": 0.3,
+        "oldpeak": 0.0,
+        "slope": 64.6,
+        "ca": 99.0,
+        "thal": 90.5
+      }
+    },
+    "switzerland": {
+      "label": "Switzerland",
+      "input_sha256": "834a405ccf5b66ab4056bb77794adc8df0b7125186454c0a1d002d33c6c3b314",
+      "rows_read": 123,
+      "rows_expected": 123,
+      "rows_accepted": 123,
+      "rows_rejected": 0,
+      "rejection_rate": 0.0,
+      "zeros_recoded": {
+        "trestbps": 0,
+        "chol": 123
+      },
+      "exact_duplicates": 0,
+      "disease_pct": 93.5,
+      "missing_pct": {
+        "age": 0.0,
+        "sex": 0.0,
+        "cp": 0.0,
+        "trestbps": 1.6,
+        "chol": 100.0,
+        "fbs": 61.0,
+        "restecg": 0.8,
+        "thalach": 0.8,
+        "exang": 0.8,
+        "oldpeak": 4.9,
+        "slope": 13.8,
+        "ca": 95.9,
+        "thal": 42.3
+      }
+    },
+    "va": {
+      "label": "VA Long Beach",
+      "input_sha256": "e7c93d8d0d2acdadfa4c5e8de768e2191e7f618b952e29623f1f0d5949ff6b8f",
+      "rows_read": 200,
+      "rows_expected": 200,
+      "rows_accepted": 200,
+      "rows_rejected": 0,
+      "rejection_rate": 0.0,
+      "zeros_recoded": {
+        "trestbps": 1,
+        "chol": 49
+      },
+      "exact_duplicates": 1,
+      "disease_pct": 74.5,
+      "missing_pct": {
+        "age": 0.0,
+        "sex": 0.0,
+        "cp": 0.0,
+        "trestbps": 28.5,
+        "chol": 28.0,
+        "fbs": 3.5,
+        "restecg": 0.0,
+        "thalach": 26.5,
+        "exang": 26.5,
+        "oldpeak": 28.0,
+        "slope": 51.0,
+        "ca": 99.0,
+        "thal": 83.0
+      }
+    }
+  },
+  "output": {
+    "file": "heart_clean.csv",
+    "rows": 920,
+    "sha256": "0d99bda801da97beb85350ea30c11d8db70b06c359b1e3417e188c2a24951b3d"
+  }
+}
