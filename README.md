@@ -94,7 +94,7 @@ curl -s http://localhost/predict -H 'Content-Type: application/json' \
   "risk_band": "high",
   "imputed_fields": [],
   "request_id": "demo-1",
-  "model": {"name": "heart-disease-classifier", "version": 5, "run_id": "4360f322…", "family": "logistic_regression"}
+  "model": {"name": "heart-disease-classifier", "version": 7, "run_id": "88944315…", "family": "logistic_regression"}
 }
 ```
 
