@@ -7,9 +7,13 @@ PYTHON ?= $(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,python3)
 PKG    := src/heartrisk
 # Import the package straight from src/ (no install step writes into the repo).
 export PYTHONPATH := $(CURDIR)/src$(if $(PYTHONPATH),:$(PYTHONPATH))
+# MLflow store on the Linux filesystem (SQLite locking fails on /mnt/d); CI overrides it.
+MLFLOW_TRACKING_URI ?= sqlite:///$(HOME)/.heartrisk/mlflow/mlflow.db
+export MLFLOW_TRACKING_URI
 
 .DEFAULT_GOAL := help
-.PHONY: help bootstrap check install lock lint format test data verify-data prepare eda
+.PHONY: help bootstrap check install lock lint format test data verify-data prepare eda \
+        train mlflow-ui experiments-report
 
 help: ## List targets
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -55,3 +59,13 @@ eda: ## Execute the EDA notebook in place; export reports/eda.html and reports/f
 	  --KernelManager.transport=ipc --KernelManager.ip=$$(mktemp -u /tmp/heartrisk-kernel.XXXXXX)
 	$(PYTHON) -m jupyter nbconvert --to html notebooks/01_eda.ipynb --output-dir reports --output eda \
 	  --template heartrisk --TemplateExporter.extra_template_basedirs=notebooks/nbconvert
+
+# ---- Stages 2-3: model development + experiment tracking --------------------------------
+train: ## Tune LR/RF/HGB with CV, evaluate, log to MLflow, register champion + challenger
+	$(PYTHON) -m heartrisk.train
+
+mlflow-ui: ## MLflow UI on http://localhost:5000 (Ctrl+C to stop)
+	$(PYTHON) -m mlflow ui --backend-store-uri $(MLFLOW_TRACKING_URI) --host 127.0.0.1 --port 5000
+
+experiments-report: ## Family runs from MLflow -> reports/experiments.csv
+	$(PYTHON) -m heartrisk.tracking --report reports/experiments.csv

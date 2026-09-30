@@ -1,0 +1,62 @@
+{
+  "cv": {
+    "cv_roc_auc_mean": 0.9086635586635585,
+    "cv_roc_auc_std": 0.010665308640048913,
+    "cv_accuracy_mean": 0.8345238095238094,
+    "cv_accuracy_std": 0.037584072078064926,
+    "cv_precision_mean": 0.8333333333333333,
+    "cv_precision_std": 0.09252075822726404,
+    "cv_recall_mean": 0.8189723320158103,
+    "cv_recall_std": 0.05124029936935088,
+    "cv_f1_mean": 0.8211679911911874,
+    "cv_f1_std": 0.03237665976095035
+  },
+  "holdout": {
+    "n": 61,
+    "prevalence": 0.45901639344262296,
+    "roc_auc": 0.9502164502164503,
+    "accuracy": 0.8524590163934426,
+    "precision": 0.8064516129032258,
+    "recall": 0.8928571428571429,
+    "specificity": 0.8181818181818182,
+    "f1": 0.847457627118644
+  },
+  "external": [
+    {
+      "family": "logistic_regression",
+      "site": "hungary",
+      "n": 294,
+      "prevalence": 0.36054421768707484,
+      "roc_auc": 0.8948213568847851,
+      "accuracy": 0.8299319727891157,
+      "precision": 0.868421052631579,
+      "recall": 0.6226415094339622,
+      "specificity": 0.9468085106382979,
+      "f1": 0.7252747252747253
+    },
+    {
+      "family": "logistic_regression",
+      "site": "switzerland",
+      "n": 123,
+      "prevalence": 0.9349593495934959,
+      "roc_auc": 0.741304347826087,
+      "accuracy": 0.6504065040650406,
+      "precision": 0.9736842105263158,
+      "recall": 0.6434782608695652,
+      "specificity": 0.75,
+      "f1": 0.774869109947644
+    },
+    {
+      "family": "logistic_regression",
+      "site": "va",
+      "n": 200,
+      "prevalence": 0.745,
+      "roc_auc": 0.6975917883932097,
+      "accuracy": 0.56,
+      "precision": 0.8765432098765432,
+      "recall": 0.47651006711409394,
+      "specificity": 0.803921568627451,
+      "f1": 0.6173913043478261
+    }
+  ]
+}

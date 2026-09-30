@@ -1,0 +1,87 @@
+{
+  "family": "logistic_regression",
+  "selection_reason": "mean CV ROC-AUC 0.909 ties with random_forest 0.904 (within 0.01 of the best, 0.909), so recall decides: highest mean CV recall (0.819)",
+  "challenger": "random_forest",
+  "best_params": {
+    "engineer__enabled": "False",
+    "model__C": "1.0",
+    "model__class_weight": "balanced",
+    "model__l1_ratio": "1.0"
+  },
+  "cv": {
+    "cv_roc_auc_mean": 0.9086635586635585,
+    "cv_roc_auc_std": 0.010665308640048913,
+    "cv_accuracy_mean": 0.8345238095238094,
+    "cv_accuracy_std": 0.037584072078064926,
+    "cv_precision_mean": 0.8333333333333333,
+    "cv_precision_std": 0.09252075822726404,
+    "cv_recall_mean": 0.8189723320158103,
+    "cv_recall_std": 0.05124029936935088,
+    "cv_f1_mean": 0.8211679911911874,
+    "cv_f1_std": 0.03237665976095035
+  },
+  "holdout": {
+    "n": 61,
+    "prevalence": 0.45901639344262296,
+    "roc_auc": 0.9502164502164503,
+    "accuracy": 0.8524590163934426,
+    "precision": 0.8064516129032258,
+    "recall": 0.8928571428571429,
+    "specificity": 0.8181818181818182,
+    "f1": 0.847457627118644
+  },
+  "external": {
+    "hungary": {
+      "family": "logistic_regression",
+      "site": "hungary",
+      "n": 294,
+      "prevalence": 0.36054421768707484,
+      "roc_auc": 0.8948213568847851,
+      "accuracy": 0.8299319727891157,
+      "precision": 0.868421052631579,
+      "recall": 0.6226415094339622,
+      "specificity": 0.9468085106382979,
+      "f1": 0.7252747252747253
+    },
+    "switzerland": {
+      "family": "logistic_regression",
+      "site": "switzerland",
+      "n": 123,
+      "prevalence": 0.9349593495934959,
+      "roc_auc": 0.741304347826087,
+      "accuracy": 0.6504065040650406,
+      "precision": 0.9736842105263158,
+      "recall": 0.6434782608695652,
+      "specificity": 0.75,
+      "f1": 0.774869109947644
+    },
+    "va": {
+      "family": "logistic_regression",
+      "site": "va",
+      "n": 200,
+      "prevalence": 0.745,
+      "roc_auc": 0.6975917883932097,
+      "accuracy": 0.56,
+      "precision": 0.8765432098765432,
+      "recall": 0.47651006711409394,
+      "specificity": 0.803921568627451,
+      "f1": 0.6173913043478261
+    }
+  },
+  "threshold": 0.5,
+  "recall_target": 0.9,
+  "threshold_for_recall_target": 0.4752706160478717,
+  "parent_run_id": "fc4c4bcf083e46f98cb2f8e8420423a7",
+  "run_id": "4360f32280214178bc8258515ad18188",
+  "lineage": {
+    "git_sha": "dcaed7b756e62c6959240ceeb215339f26b01d16",
+    "git_dirty": "true",
+    "data_sha256": "0d99bda801da97beb85350ea30c11d8db70b06c359b1e3417e188c2a24951b3d",
+    "raw_manifest_sha256": "c0a7801c5f241a07fbff2d81b21834196a47e6e2588c7d9255d451cc41909dc4",
+    "train_sites": "cleveland",
+    "python": "3.12.3",
+    "sklearn": "1.9.1",
+    "pandas": "3.0.6",
+    "mlflow": "3.16.1"
+  }
+}

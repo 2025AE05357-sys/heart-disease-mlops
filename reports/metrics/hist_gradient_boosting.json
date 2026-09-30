@@ -1,0 +1,62 @@
+{
+  "cv": {
+    "cv_roc_auc_mean": 0.889784691958605,
+    "cv_roc_auc_std": 0.019744770398755915,
+    "cv_accuracy_mean": 0.8427721088435375,
+    "cv_accuracy_std": 0.03176381810617424,
+    "cv_precision_mean": 0.8611678058783321,
+    "cv_precision_std": 0.06121720897669034,
+    "cv_recall_mean": 0.7920948616600791,
+    "cv_recall_std": 0.07505095208749404,
+    "cv_f1_mean": 0.8209140637201836,
+    "cv_f1_std": 0.03914776235702952
+  },
+  "holdout": {
+    "n": 61,
+    "prevalence": 0.45901639344262296,
+    "roc_auc": 0.9512987012987013,
+    "accuracy": 0.9180327868852459,
+    "precision": 0.9259259259259259,
+    "recall": 0.8928571428571429,
+    "specificity": 0.9393939393939394,
+    "f1": 0.9090909090909091
+  },
+  "external": [
+    {
+      "family": "hist_gradient_boosting",
+      "site": "hungary",
+      "n": 294,
+      "prevalence": 0.36054421768707484,
+      "roc_auc": 0.8407015254917704,
+      "accuracy": 0.6700680272108843,
+      "precision": 0.7368421052631579,
+      "recall": 0.1320754716981132,
+      "specificity": 0.973404255319149,
+      "f1": 0.224
+    },
+    {
+      "family": "hist_gradient_boosting",
+      "site": "switzerland",
+      "n": 123,
+      "prevalence": 0.9349593495934959,
+      "roc_auc": 0.7391304347826086,
+      "accuracy": 0.4878048780487805,
+      "precision": 0.9642857142857143,
+      "recall": 0.46956521739130436,
+      "specificity": 0.75,
+      "f1": 0.631578947368421
+    },
+    {
+      "family": "hist_gradient_boosting",
+      "site": "va",
+      "n": 200,
+      "prevalence": 0.745,
+      "roc_auc": 0.7050269772338467,
+      "accuracy": 0.42,
+      "precision": 0.851063829787234,
+      "recall": 0.2684563758389262,
+      "specificity": 0.8627450980392157,
+      "f1": 0.40816326530612246
+    }
+  ]
+}

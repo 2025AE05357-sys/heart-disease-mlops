@@ -23,6 +23,12 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM"]
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-ra -p no:cacheprovider"
+filterwarnings = [
+    # raised inside MLflow's own SQLAlchemy models, not by project code
+    "ignore:The ``noload`` loader strategy is deprecated:DeprecationWarning",
+    "ignore:Any type hint is inferred as AnyType:UserWarning",
+    "ignore::pandas.errors.Pandas4Warning:mlflow",
+]
 
 [tool.coverage.report]
 exclude_also = ['if __name__ == "__main__":']

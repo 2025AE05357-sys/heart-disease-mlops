@@ -18,6 +18,13 @@ FLOAT_COLUMNS = ["oldpeak"]
 INTEGER_FEATURES = [c for c in FEATURES if c not in FLOAT_COLUMNS]
 CLEAN_COLUMNS = ["record_id", "site", *FEATURES, "num_raw", "target"]
 
+SITE_LABELS = {
+    "cleveland": "Cleveland",
+    "hungary": "Hungary",
+    "switzerland": "Switzerland",
+    "va": "VA Long Beach",
+}
+
 # Human-readable meaning of each column and code (UCI documentation), shared by the EDA,
 # the report and the API so that every surface uses the same clinical wording.
 DESCRIPTIONS = {

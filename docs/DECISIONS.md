@@ -10,6 +10,14 @@ plan (D0–D15); each one is added at the stage that needs it.
 | D0 | 0 | Originality theme | Clinical-grade traceability | 30 Sep 2026 |
 | D1 | 1 | Data scope | Train and tune on Cleveland; external validation on Hungary, Switzerland and VA Long Beach | 30 Sep 2026 |
 | D2 | 1 | Physiologically impossible zeros (`chol = 0`, `trestbps = 0`) | Treat as missing; impute inside the model pipeline | 30 Sep 2026 |
+| D3 | 2 | Engineered features | `hr_pct_pred` searched as a hyperparameter; no missing-value indicators | 30 Sep 2026 (provisional) |
+| D4 | 2 | Model families | Logistic regression, random forest, histogram gradient boosting | 30 Sep 2026 (provisional) |
+| D5 | 2 | Champion selection rule | Best mean CV ROC-AUC; within 0.01, higher mean CV recall; then the simpler model | 30 Sep 2026 (provisional) |
+| D6 | 2/6 | Decision threshold and risk bands | Class threshold 0.5; risk bands low < 0.3 ≤ moderate < 0.6 ≤ high; recall-0.90 threshold reported only | 30 Sep 2026 (provisional) |
+
+"Provisional" marks a decision taken with the plan's recommendation while I was away, to be
+confirmed or changed. Each lives in `configs/train.yaml`, so changing one is a config edit and a
+re-run of `make train`.
 
 ---
 
@@ -95,3 +103,86 @@ instead, so the same fact is coded two different ways across sites.
 **Reason:** a cholesterol or resting blood pressure of zero is not a measurement; it is a site's
 code for "not measured". Imputation stays out of `clean.py` and inside the model pipeline, fitted
 on training folds only, so no information leaks from validation data into training.
+
+---
+
+## D3: Engineered features (provisional)
+
+| Option | What it means |
+|---|---|
+| **`hr_pct_pred` as a searched option; no missing indicators** | Add the share of age-predicted maximum heart rate reached, `thalach / (220 − age)`, and let cross-validation decide whether it helps |
+| Add missing-value indicators as well | One extra 0/1 column per feature with gaps |
+| No engineered features | Use the 13 source features only |
+
+**Choice:** `hr_pct_pred` is a hyperparameter of every grid (`engineer__enabled: [false, true]`),
+so each family's search reports whether it helps. No missing-value indicators.
+
+**Reason:** a low share of the age-predicted maximum heart rate (chronotropic incompetence) is a
+recognised marker of coronary disease, and searching it costs nothing. Missing-value indicators
+were rejected on the data: the Cleveland training set has only 6 rows with a gap (`ca` 4, `thal`
+2), too few to learn what "missing" means, while at the external sites nearly every row is missing
+`ca`. An indicator learned from 6 rows would inject noise exactly where the model is weakest.
+
+**Result (30 Sep 2026):** cross-validation selected `hr_pct_pred` only for gradient boosting;
+logistic regression (the champion) and random forest scored better without it. The feature
+stays in the search, so the question is re-asked on every retraining.
+
+The formula:
+
+$$\text{hr\_pct\_pred} = \frac{\text{thalach}}{220 - \text{age}}$$
+
+**Notation:** $\text{thalach}$ = maximum heart rate reached in the exercise test (beats/min);
+$\text{age}$ = age (years); $220 - \text{age}$ = conventional age-predicted maximum heart rate
+(beats/min); the result is unitless (0.8 means 80% of the predicted maximum was reached).
+
+---
+
+## D4: Model families (provisional)
+
+| Option | What it means |
+|---|---|
+| **Logistic regression + random forest + histogram gradient boosting** | A linear baseline, a bagged tree ensemble and a boosted tree ensemble |
+| Logistic regression + random forest only | The brief's minimum |
+
+**Choice:** all three, each tuned by grid search under stratified 5-fold cross-validation.
+
+**Reason:** the three families fail in different ways (linear vs. interactions, variance vs.
+bias), so the comparison is informative; gradient boosting also tests whether more capacity helps
+on 242 training rows. scikit-learn 1.9 deprecates `LogisticRegression(penalty=...)`, so the plan's
+"L1 or L2" choice is expressed as `l1_ratio ∈ {0, 1}` with the `saga` solver (same models).
+
+---
+
+## D5: Champion selection rule (provisional)
+
+| Option | What it means |
+|---|---|
+| **Best mean CV ROC-AUC; within 0.01, higher mean CV recall; then the simpler model** | Discrimination first, then the clinically costly error, then parsimony |
+| Best mean CV ROC-AUC only | Ignores recall and simplicity |
+| Best hold-out score | Would turn the locked hold-out set into a tuning set |
+
+**Choice:** the first. Order of simplicity: logistic regression, gradient boosting, random forest.
+
+**Reason:** ROC-AUC does not depend on the threshold or on prevalence (which ranges from 36% to 94%
+across the sites), so it is the fair headline. Differences under 0.01 are inside the fold-to-fold
+spread, so they should not decide; recall then decides, because a missed diagnosis costs more than
+a false alarm. The hold-out set is never used for selection. Result on 30 Sep 2026: logistic
+regression (CV ROC-AUC 0.909) tied with random forest (0.904); logistic regression had the higher
+recall (0.819 vs 0.774) and became champion; random forest is the registered challenger.
+
+---
+
+## D6: Decision threshold and risk bands (provisional)
+
+| Option | What it means |
+|---|---|
+| **Threshold 0.5 for the class; risk bands as an extra; recall-0.90 threshold reported only** | Standard class output, a graded view for the API, and the recall trade-off documented |
+| Lower the threshold to reach 90% recall | Fewer missed cases, more false alarms, chosen on 61 hold-out rows |
+
+**Choice:** class = 1 when the probability is at least 0.5; the API also returns a band (low < 0.3
+≤ moderate < 0.6 ≤ high); the threshold that reaches 90% hold-out recall is reported in
+`reports/threshold_analysis.csv` but not used.
+
+**Reason:** a threshold tuned on 61 hold-out patients would overfit them, and the external sites
+show that calibration does not transfer across hospitals anyway. On the hold-out set the 0.5
+threshold already gives recall 0.89; reaching 0.90 needs 0.48, a negligible change.

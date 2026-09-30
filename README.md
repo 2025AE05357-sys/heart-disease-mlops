@@ -17,8 +17,8 @@ the way that GxP-regulated clinical systems demand an audit trail.
 |---|---|---|---|
 | 0 | Environment (WSL2 + Docker Desktop; lab VM alternative) + repo skeleton | – | ✅ |
 | 1 | Data acquisition, cleaning, EDA | 5 | ✅ |
-| 2 | Feature engineering + model development | 8 | ⏳ |
-| 3 | Experiment tracking (MLflow) | 5 | ⏳ |
+| 2 | Feature engineering + model development | 8 | ✅ |
+| 3 | Experiment tracking (MLflow) | 5 | ✅ |
 | 4 | Model packaging + reproducibility | 7 | ⏳ |
 | 5 | CI/CD pipeline + automated tests | 8 | ⏳ |
 | 6 | Containerised serving API | 5 | ⏳ |
@@ -35,14 +35,15 @@ heart-disease-mlops/
 ├── requirements.txt         fully pinned lock for Python 3.12 (`make lock`)
 ├── pyproject.toml           package metadata + ruff/pytest config
 ├── configs/data.yaml        data sources, plausibility ranges, validation-gate threshold
+├── configs/train.yaml       seed, CV, model grids, selection rule, threshold (decisions D3-D6)
 ├── scripts/vm_bootstrap.sh  sets up WSL Ubuntu or the BITS lab VM
-├── src/heartrisk/           the Python package (data, features, training, serving)
+├── src/heartrisk/           data/ (download, schema, clean), features, train, evaluate, tracking, viz
 ├── tests/                   pytest suite
 ├── notebooks/01_eda.ipynb   EDA notebook (executed by `make eda`)
 ├── data/README.md           provenance, licence, cleaning rules
 ├── data/raw/                UCI source files + MANIFEST.json (SHA-256 per file)
 ├── data/processed/          heart_clean.csv, rejected.csv, validation report, data card
-├── reports/                 generated figures and metrics
+├── reports/                 EDA + model figures, model comparison, external validation, metrics JSON
 ├── docs/DECISIONS.md        design decisions: options, choice, reason
 └── docs/screenshots/        evidence for the report
 ```

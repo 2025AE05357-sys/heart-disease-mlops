@@ -1,0 +1,54 @@
+# Model development and tracking settings (Stages 2-3).
+# Decision IDs refer to docs/DECISIONS.md.
+
+seed: 42
+
+data:
+  clean_file: data/processed/heart_clean.csv
+  manifest: data/raw/MANIFEST.json      # hashed into the run tags for lineage
+  train_sites: [cleveland]              # D1: the other sites are external validation only
+  test_size: 0.2                        # locked stratified hold-out; never used for tuning
+
+cv:
+  folds: 5                              # StratifiedKFold, shuffled with the seed
+n_jobs: -1                              # grid-search workers (-1 = all cores)
+
+primary_metric: roc_auc                 # refit metric for every grid search
+selection:                              # D5
+  auc_tolerance: 0.01                   # families within this of the best mean CV ROC-AUC tie...
+  recall_tolerance: 0.01                # ...then higher mean CV recall wins; a tie there goes to...
+  simplicity_order: [logistic_regression, hist_gradient_boosting, random_forest]  # ...the simpler
+
+threshold: 0.5                          # D6: probability threshold for the predicted class
+risk_bands: {low: 0.3, high: 0.6}       # D6: low < 0.3 <= moderate < 0.6 <= high (API extra)
+recall_target: 0.90                     # D6: threshold reaching this recall is reported, not used
+
+features:
+  hr_reserve: [false, true]             # D3: tuned like a hyperparameter, so CV decides
+
+models:                                 # D4
+  logistic_regression:
+    grid:
+      model__C: [0.01, 0.1, 1.0, 10.0]
+      model__l1_ratio: [0.0, 1.0]       # 0 = L2, 1 = L1 ("penalty" is deprecated in scikit-learn 1.8+)
+      model__class_weight: [null, balanced]
+  random_forest:
+    grid:
+      model__n_estimators: [200, 500]
+      model__max_depth: [null, 4, 6, 8]
+      model__min_samples_leaf: [1, 3, 5]
+      model__max_features: [sqrt, 0.5]
+      model__class_weight: [null, balanced]
+  hist_gradient_boosting:
+    grid:
+      model__learning_rate: [0.03, 0.1]
+      model__max_depth: [null, 3]
+      model__max_leaf_nodes: [15, 31]
+      model__l2_regularization: [0.0, 1.0]
+
+tracking:
+  experiment: heart-disease-risk
+  registered_model: heart-disease-classifier
+
+outputs:
+  reports_dir: reports
