@@ -66,6 +66,7 @@ To rotate the Grafana password: `kubectl -n monitoring delete secret grafana-adm
 | `ErrImageNeverPull` / `ImagePullBackOff` | The tag in `release.env` was never built locally | `make k8s-deploy` (builds first) |
 | Pods rejected with a Pod Security error | A manifest change broke the `restricted` standard | Restore `runAsNonRoot`, `drop: ALL`, `allowPrivilegeEscalation: false`, seccomp |
 | Grafana panels "No data", data source not found | Grafana 13 must write its bundled plugins at start-up | Keep `readOnlyRootFilesystem: false` for Grafana only (see its manifest) |
+| Grafana `CrashLoopBackOff`, last state `OOMKilled` | Memory grew until the limit while the dashboard refreshed (seen at 512 MiB) | Keep `GOMEMLIMIT=1000MiB` and the 1.5 GiB limit; `kubectl -n monitoring describe pod -l app.kubernetes.io/name=grafana` shows the last state |
 | `database is locked` in MLflow | Tracking store on the Windows drive | Keep `MLFLOW_TRACKING_URI` on the Linux filesystem (the Makefile default) |
 | `make prepare` fails with `GATE FAIL` | Raw data changed or rows broke the plausibility rules | Read `data/processed/validation_report.json` and `rejected.csv` |
 | `make package` fails with `LineageError` | Data changed since training, or the artifact does not reproduce its metrics | Retrain (`make train`) before packaging |

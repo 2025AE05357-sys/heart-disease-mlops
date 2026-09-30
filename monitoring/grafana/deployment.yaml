@@ -49,6 +49,8 @@ spec:
               value: "false"
             - name: GF_LOG_MODE
               value: console
+            - name: GOMEMLIMIT          # soft ceiling for the Go garbage collector
+              value: 1000MiB
             - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
               value: /etc/grafana/dashboards/heartrisk-dashboard.json
           ports:
@@ -58,18 +60,27 @@ spec:
             httpGet:
               path: /api/health
               port: http
+            timeoutSeconds: 5
+          # Generous timeouts: with the 1 s default a busy Grafana failed probes and was restarted
+          # in a loop. Liveness only has to catch a hung process, not a slow one.
           livenessProbe:
             httpGet:
               path: /api/health
               port: http
             initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 6
+          # Measured: 512 MiB was OOMKilled while the dashboard refreshed; under the same load usage
+          # climbed past 770 MiB without levelling off, because Go only collects hard near a
+          # ceiling. GOMEMLIMIT (below) gives it one; the limit leaves room for the plugin process.
           resources:
             requests:
               cpu: 100m
-              memory: 128Mi
+              memory: 256Mi
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: "1"
+              memory: 1536Mi
           securityContext:
             allowPrivilegeEscalation: false
             # Grafana 13 unpacks its bundled plugins (the Prometheus data source among them) into
