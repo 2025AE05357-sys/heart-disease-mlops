@@ -1,6 +1,6 @@
 # Heart-Disease Risk API: an end-to-end MLOps pipeline
 
-**Machine Learning Operations (AIMLCZG523) · Assignment 1 · Rajesh Patel (BITS ID: to fill)**
+**Machine Learning Operations (AIMLCZG523) · Assignment 1 · Rajesh Patel (BITS ID: 2025AE05357)**
 
 **Repository:** https://github.com/2025AE05357-sys/heart-disease-mlops
 

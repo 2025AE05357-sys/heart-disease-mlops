@@ -1,7 +1,7 @@
 # Heart-Disease Risk API: an end-to-end MLOps pipeline
 
 BITS Pilani WILP · Machine Learning Operations (AIMLCZG523) · Assignment 1
-Author: Rajesh Patel (BITS ID: _to fill_)
+Author: Rajesh Patel (BITS ID: 2025AE05357)
 
 A classifier that predicts the presence of heart disease from routine clinical measurements
 (UCI Heart Disease dataset), trained with tracked experiments, tested and built in CI, and served
