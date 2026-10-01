@@ -3,6 +3,8 @@
 BITS Pilani WILP · Machine Learning Operations (AIMLCZG523) · Assignment 1
 Author: Rajesh Patel (BITS ID: 2025AE05357)
 
+[![CI](https://github.com/2025AE05357-sys/heart-disease-mlops/actions/workflows/ci.yml/badge.svg)](https://github.com/2025AE05357-sys/heart-disease-mlops/actions/workflows/ci.yml)
+
 A classifier that predicts the presence of heart disease from routine clinical measurements
 (UCI Heart Disease dataset), trained with tracked experiments, tested and built in CI, and served
 as a containerised, monitored API on Kubernetes.
@@ -22,11 +24,14 @@ way GxP-regulated clinical systems demand an audit trail.
 | 2 | Feature engineering + model development | 8 | ✅ |
 | 3 | Experiment tracking (MLflow) | 5 | ✅ |
 | 4 | Model packaging + reproducibility | 7 | ✅ |
-| 5 | CI/CD pipeline + automated tests | 8 | ✅ green on GitHub Actions (lint, 104 tests, reproducible data, training + quality gate, container smoke test) |
+| 5 | CI/CD pipeline + automated tests | 8 | ✅ green on GitHub Actions (lint, 105 tests, reproducible data, training + quality gate, container smoke test) |
 | 6 | Containerised serving API | 5 | ✅ |
-| 7 | Kubernetes deployment | 7 | ✅ LoadBalancer on localhost; Traefik Ingress overlay ready |
+| 7 | Kubernetes deployment | 7 | ✅ LoadBalancer on localhost; rollouts drop no requests; Traefik Ingress overlay ready |
 | 8 | Monitoring + logging | 3 | ✅ Prometheus + Grafana; input-drift alerts fire on shifted traffic |
-| 9 | Report, screenshots, video | 2 | 🟡 report built (11 pages) with screenshot placeholders; screenshots and video pending |
+| 9 | Report, screenshots, video | 2 | 🟡 report (12 pages) and all screenshots done; video to be recorded |
+| 10 | Clean-clone reproducibility run | – | ✅ fresh clone → bootstrap → lint, tests, `make all` → Docker → Kubernetes; the retrained model's predictions match the committed model exactly |
+
+Where each requirement of the brief is met: [docs/EVIDENCE.md](docs/EVIDENCE.md).
 
 ## Architecture
 
@@ -116,8 +121,10 @@ clinical values.
 | Document | Content |
 |---|---|
 | [docs/report/report.pdf](docs/report/report.pdf) | The assignment report |
+| [docs/EVIDENCE.md](docs/EVIDENCE.md) | Each requirement of the brief mapped to files, screenshots and report sections |
+| [docs/screenshots/](docs/screenshots/) | Evidence screenshots used in the report |
 | [docs/architecture.md](docs/architecture.md) | Architecture, traceability chain, component choices |
-| [docs/DECISIONS.md](docs/DECISIONS.md) | Decisions D0–D12: options, choice, reason |
+| [docs/DECISIONS.md](docs/DECISIONS.md) | Decisions D0–D14: options, choice, reason |
 | [docs/MODEL_CARD.md](docs/MODEL_CARD.md) | Intended use, performance per site, limitations |
 | [docs/RUNBOOK.md](docs/RUNBOOK.md) | Deploy, release a new model, roll back, troubleshoot |
 | [data/README.md](data/README.md) | Data provenance, licence, cleaning rules |
@@ -191,7 +198,7 @@ First time:
 
 ```bash
 cd ~/workspace
-git clone https://github.com/<github-user>/heart-disease-mlops.git   # password = your GitHub token
+git clone https://github.com/2025AE05357-sys/heart-disease-mlops.git   # password = your GitHub token
 cd heart-disease-mlops
 bash scripts/vm_bootstrap.sh && source ~/.bashrc
 git config --global user.name  "Your Name"        # stored in ~/workspace, so asked only once
