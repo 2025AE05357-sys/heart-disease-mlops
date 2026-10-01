@@ -40,6 +40,9 @@ figure img { max-width: 100%; max-height: 9.5cm; }
 figure.shot { display: inline-block; width: 48.5%; margin: 4pt 0.5% 8pt; vertical-align: top; }
 figure.shot img { max-height: 6.2cm; border: 1px solid #d6d5ce; }
 figure.shot .pending { min-height: 3.2cm; box-sizing: border-box; }
+/* Several images in one Markdown paragraph print side by side. */
+figure.pair { display: inline-block; width: 48.5%; margin: 4pt 0.5% 8pt; vertical-align: top; }
+figure.pair img { max-height: 8.5cm; }
 figcaption { font-size: 8.8pt; color: #52514e; margin-top: 3pt; }
 .pending { border: 1.5px dashed #898781; background: #fafaf8; color: #52514e; padding: 16pt 10pt;
            font-size: 9pt; }
@@ -98,14 +101,23 @@ def protect(text: str) -> tuple[str, dict[str, str]]:
     return text, stash
 
 
+IMG = re.compile(r'<img alt="([^"]*)" src="([^"]+)"\s*/?>')
+
+
 def figures(body: str, base: Path) -> tuple[str, list[str]]:
-    """Paragraph images become captioned figures; missing files become labelled placeholders."""
+    """Paragraph images become captioned figures; missing files become labelled placeholders.
+
+    Screenshots print two per row; other images in a paragraph of their own print full width,
+    and several images in one paragraph print side by side.
+    """
     missing: list[str] = []
 
-    def figure(m: re.Match) -> str:
-        alt, src = html.unescape(m.group(1)), m.group(2)
+    def figure(raw_alt: str, src: str, paired: bool) -> str:
+        alt = html.unescape(raw_alt)
         caption = f"<figcaption>{html.escape(alt)}</figcaption>"
-        kind = ' class="shot"' if "screenshots/" in src else ""
+        kind = ' class="pair"' if paired else ""
+        if "screenshots/" in src:
+            kind = ' class="shot"'
         if (base / src).exists():
             return f'<figure{kind}><img src="{src}" alt="{html.escape(alt)}">{caption}</figure>'
         missing.append(src)
@@ -115,7 +127,11 @@ def figures(body: str, base: Path) -> tuple[str, list[str]]:
             f"docs/screenshots/{html.escape(name)}</div>{caption}</figure>"
         )
 
-    body = re.sub(r'<p><img alt="([^"]*)" src="([^"]+)"\s*/?></p>', figure, body)
+    def paragraph(m: re.Match) -> str:
+        images = IMG.findall(m.group(1))
+        return "".join(figure(alt, src, len(images) > 1) for alt, src in images)
+
+    body = re.sub(r"<p>((?:\s*<img [^>]*>)+\s*)</p>", paragraph, body)
     return body, missing
 
 

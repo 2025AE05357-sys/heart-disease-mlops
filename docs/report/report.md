@@ -107,13 +107,16 @@ cholesterol until its zeros are read as "not measured".
 
 ![Figure 2: disease prevalence by site, and Cleveland's severity codes mapped to the binary target](../../reports/figures/eda_02_class_balance.png)
 
-![Figure 3: the four hospitals are different populations](../../reports/figures/eda_06_site_shift.png)
+![Figure 3: histograms of the continuous features in Cleveland, split by class](../../reports/figures/eda_03_continuous_cleveland.png)
+![Figure 4: Spearman rank correlations in Cleveland, including the target](../../reports/figures/eda_05_correlation_cleveland.png)
+
+![Figure 5: the four hospitals are different populations](../../reports/figures/eda_06_site_shift.png)
 
 | # | Finding | Consequence for modelling |
 |---|---|---|
 | 1 | Cleveland is almost complete (2.0% of rows have a gap); at the other sites 99.5–100% of rows do, and `ca` is missing for 96–99% of patients | Train on Cleveland; impute inside the pipeline; expect weaker external results |
 | 2 | Prevalence ranges from 36.1% (Hungary) to 93.5% (Switzerland), against 45.9% in Cleveland | Compare sites on ROC-AUC, which does not depend on prevalence |
-| 3 | Strongest Cleveland signals: vessels on fluoroscopy (Spearman ρ = +0.49), exercise angina (+0.43), maximum heart rate (−0.42), ST depression (+0.41); cholesterol is weak (+0.12) | The clinically expected predictors dominate |
+| 3 | Strongest Cleveland signals (Figure 4): vessels on fluoroscopy (Spearman ρ = +0.49), exercise angina (+0.43), maximum heart rate (−0.42), ST depression (+0.41); cholesterol is weak (+0.12) | The clinically expected predictors dominate |
 | 4 | External sites differ: median maximum heart rate 120–121 at Switzerland and VA vs 153 in Cleveland; asymptomatic chest pain 80% in Switzerland vs 48% | Built-in covariate shift, reused for the drift demonstration |
 | 5 | Cleveland is close to balanced (164 without disease, 139 with) | No resampling; stratified cross-validation |
 
@@ -192,9 +195,9 @@ recall. The external columns vindicate the rule: gradient boosting had the best 
 (0.918) but collapsed at Hungary, where its recall fell to 0.13 against 0.62 for logistic regression.
 Choosing on the 61-patient hold-out set would have picked the model that transfers worst.
 
-![Figure 4: cross-validated ROC-AUC and recall per family](../../reports/figures/model_01_cv_comparison.png)
+![Figure 6: cross-validated ROC-AUC and recall per family](../../reports/figures/model_01_cv_comparison.png)
 
-![Figure 5: ROC-AUC on the hold-out set and at the three external hospitals](../../reports/figures/model_06_external_validation.png)
+![Figure 7: ROC-AUC on the hold-out set and at the three external hospitals](../../reports/figures/model_06_external_validation.png)
 
 All three models lose discrimination at Switzerland and VA (ROC-AUC 0.70–0.77). These patients
 are older, reach lower heart rates and lack the fluoroscopy and thallium tests that are the
