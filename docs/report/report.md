@@ -312,7 +312,7 @@ The manifests use kustomize: a base, a release component and two overlays.
 | Object | Key settings |
 |---|---|
 | Namespace | Enforces the **restricted** Pod Security Standard, so Kubernetes itself rejects any pod that runs as root, keeps capabilities or can escalate privileges |
-| Deployment | 2 replicas; rolling updates with `maxUnavailable: 0`; CPU and memory requests and limits; read-only root filesystem; no service-account token; Prometheus annotations |
+| Deployment | 2 replicas; rolling updates with `maxUnavailable: 0` and a 5 s `preStop` drain; CPU and memory requests and limits; read-only root filesystem; no service-account token; Prometheus annotations |
 | Probes | Startup and liveness on `/health`, readiness on `/ready`: a pod whose model fails to load stays out of the Service instead of crash-looping |
 | Service | LoadBalancer on port 80 (Docker Desktop publishes it on localhost) |
 | PodDisruptionBudget | At least one pod stays available during voluntary disruptions |
@@ -322,6 +322,12 @@ The brief allows a load balancer or an ingress (D11). The LoadBalancer overlay i
 ingress overlay for Traefik at `heartrisk.localtest.me` passes a server-side dry run and is ready
 for when an ingress controller is installed. Deleting a pod demonstrates self-healing: the
 Deployment had a replacement pod Ready within about 20 seconds while the other pod kept serving.
+
+The clean-clone rehearsal (Stage 10) showed that `maxUnavailable: 0` alone did not make rollouts
+lossless. On SIGTERM the server closes its socket at once, but the Service keeps routing new
+connections to the pod for a moment: 15 of 602 requests sent during three rollouts were reset. A
+5-second `preStop` pause keeps the old pod serving until the routing has caught up; with it, 0 of
+581 requests failed, and a unit test now guards the setting.
 
 ![Pods, service and deployment in the cluster](../screenshots/15_k8s_get_all.png)
 

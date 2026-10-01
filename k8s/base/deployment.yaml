@@ -77,6 +77,12 @@ spec:
               port: http
             periodSeconds: 10
             failureThreshold: 3
+          # On SIGTERM uvicorn stops accepting connections at once, but kube-proxy and the
+          # LoadBalancer need a moment to drop the pod from the Service: keep serving for 5 s.
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: 5
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
