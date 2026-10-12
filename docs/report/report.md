@@ -253,7 +253,7 @@ model gives predictions identical to the registry copy.
 
 ## 7. CI/CD and automated tests
 
-The test suite has 104 tests with 95% line coverage and no network access: hand-written raw rows in
+The test suite has 105 tests with 95% line coverage and no network access: hand-written raw rows in
 each site's format for the data gate, hand-worked metric examples, a real 121-row sample for fast
 end-to-end training, packaging and API tests, and security tests for the model loader.
 
