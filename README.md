@@ -28,7 +28,7 @@ way GxP-regulated clinical systems demand an audit trail.
 | 6 | Containerised serving API | 5 | ✅ |
 | 7 | Kubernetes deployment | 7 | ✅ LoadBalancer on localhost; rollouts drop no requests; Traefik Ingress overlay ready |
 | 8 | Monitoring + logging | 3 | ✅ Prometheus + Grafana; input-drift alerts fire on shifted traffic |
-| 9 | Report, screenshots, video | 2 | 🟡 report (12 pages) and all screenshots done; video to be recorded |
+| 9 | Report, screenshots, video | 2 | 🟡 report (11 pages) and all screenshots done; video to be recorded |
 | 10 | Clean-clone reproducibility run | – | ✅ fresh clone → bootstrap → lint, tests, `make all` → Docker → Kubernetes; the retrained model's predictions match the committed model exactly |
 
 Where each requirement of the brief is met: [docs/EVIDENCE.md](docs/EVIDENCE.md).

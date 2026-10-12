@@ -50,7 +50,7 @@ figcaption { font-size: 8.8pt; color: #52514e; margin-top: 3pt; }
 pre.mermaid { background: none; text-align: center; padding: 0; margin: 6pt 0 10pt; }
 /* A fixed box the SVG scales into (aspect ratio kept); a free-height SVG taller than a page
    combined with break-inside: avoid prints as blank pages. */
-pre.mermaid svg { width: 100% !important; max-width: 100% !important; height: 15cm !important; }
+pre.mermaid svg { width: 100% !important; max-width: 100% !important; height: 7cm !important; }
 mjx-container[display="true"] { margin: 6pt 0 !important; }
 """
 

@@ -33,16 +33,30 @@ below, and each section points out where it shows up.
 ### Architecture
 
 ```mermaid
+---
+config:
+  flowchart:
+    nodeSpacing: 22
+    rankSpacing: 30
+    padding: 10
+---
 flowchart TB
-    UCI[("UCI archive: 4 hospital files")] -->|"make data: SHA-256 pinned"| RAW["data/raw + MANIFEST.json"]
-    RAW -->|"make prepare: validation gate"| CLEAN["heart_clean.csv + data card"]
-    CLEAN -->|"make train: 256 candidates, 5-fold CV"| MLF[("MLflow runs + registry")]
-    MLF -->|"make package: byte-for-byte copy"| PKG["models/champion: skops + lineage.json"]
-    PKG -->|"docker build: tag = commit"| IMG["API image, non-root"]
-    IMG -->|"make k8s-deploy"| LB["LoadBalancer :80 → 2 API pods"]
-    LB -->|"/metrics"| PROM["Prometheus: rules + alerts"]
-    PROM --> GRAF["Grafana dashboard"]
-    CI["GitHub Actions: lint · test · train + quality gate · docker smoke"] -.->|"every push"| PKG
+    CI["GitHub Actions on every push: lint · test · train + quality gate · docker smoke"]
+    subgraph DATA["Data and model"]
+        direction LR
+        UCI[("UCI archive:<br/>4 hospital files")] -->|"make data:<br/>SHA-256 pinned"| RAW["data/raw +<br/>MANIFEST.json"]
+        RAW -->|"make prepare:<br/>validation gate"| CLEAN["heart_clean.csv<br/>+ data card"]
+        CLEAN -->|"make train: 256<br/>candidates, 5-fold CV"| MLF[("MLflow runs<br/>+ registry")]
+    end
+    subgraph SERVE["Package, serve and monitor"]
+        direction LR
+        PKG["models/champion:<br/>skops + lineage.json"] -->|"docker build:<br/>tag = commit"| IMG["API image,<br/>non-root"]
+        IMG -->|"make<br/>k8s-deploy"| LB["LoadBalancer :80<br/>→ 2 API pods"]
+        LB -->|"/metrics"| PROM["Prometheus:<br/>rules + alerts"]
+        PROM --> GRAF["Grafana<br/>dashboard"]
+    end
+    CI -.-> DATA
+    DATA -->|"make package: byte-for-byte copy of the champion"| SERVE
 ```
 
 ## 2. Setup and installation
